@@ -42,4 +42,10 @@ public class OrderController {
     public void payOrder(@PathVariable Long orderId, @RequestBody OrderPayRequest request) {
         orderService.payOrder(orderId, request);
     }
+
+    // ✅ 구매확정 처리 API 추가
+    @PatchMapping("/{orderId}/confirm")
+    public void confirmOrder(@PathVariable Long orderId) {
+        orderService.confirmOrder(orderId);
+    }
 }

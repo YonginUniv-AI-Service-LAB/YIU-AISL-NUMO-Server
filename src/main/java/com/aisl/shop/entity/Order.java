@@ -50,11 +50,22 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public enum PaymentMethod {
         TOSS, KAKAO, NAVERPAY
     }
 
     public enum OrderStatus {
-        PENDING, PAID, CANCELLED
+        PENDING, PAID, CANCELLED, COMPLETED // ✅ 구매확정 상태 추가
     }
 }

@@ -116,4 +116,16 @@ public class OrderService {
 
         order.setStatus(OrderStatus.PAID);
     }
+
+    // ✅ 구매확정 기능 추가
+    public void confirmOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+
+        if (order.getStatus() != OrderStatus.PAID) {
+            throw new IllegalStateException("결제 완료된 주문만 구매확정할 수 있습니다.");
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
+    }
 }

@@ -7,12 +7,15 @@ import com.aisl.shop.jwt.JwtProvider;
 import com.aisl.shop.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -31,15 +34,18 @@ public class AuthService {
 
     public TokenResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일이 존재하지 않습니다"));
+                .orElseThrow(() -> new BadCredentialsException("이메일이 존재하지 않거나 비밀번호가 일치하지 않습니다"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다");
+            throw new BadCredentialsException("이메일이 존재하지 않거나 비밀번호가 일치하지 않습니다");
         }
 
         Long userId = user.getId();
         String accessToken = jwtProvider.generateAccessToken(userId);
-        String refreshToken = jwtProvider.generateRefreshToken(String.valueOf(userId)); // ✅ 수정
+        String refreshToken = jwtProvider.generateRefreshToken(String.valueOf(userId));
+
+        //  로그인 성공 로그 출력
+        log.info("[로그인 성공] 사용자 ID: {}, 이메일: {}", userId, user.getEmail());
 
         // RefreshToken 저장
         refreshTokenStore.put(userId, refreshToken);
@@ -51,7 +57,6 @@ public class AuthService {
         return refreshToken.equals(refreshTokenStore.get(userId));
     }
 
-    // 필요 시 RefreshToken으로 새로운 AccessToken 발급
     public TokenResponse reissueAccessToken(Long userId, String refreshToken) {
         if (!validateRefreshToken(userId, refreshToken)) {
             throw new RuntimeException("RefreshToken이 유효하지 않습니다");

@@ -33,8 +33,8 @@ public class SignupService {
                 .name(request.getName())
                 .phone(request.getPhone())
                 .nickname(request.getNickname())
-                .role(User.Role.USER) // ✅ 내부 enum 명시적 접근
-                .provider(User.Provider.LOCAL) // ✅ 내부 enum 명시적 접근
+                .role(User.Role.USER) //  내부 enum 명시적 접근
+                .provider(User.Provider.LOCAL) //  내부 enum 명시적 접근
                 .build();
 
         userRepository.save(user);

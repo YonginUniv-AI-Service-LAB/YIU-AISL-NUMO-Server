@@ -7,7 +7,6 @@ import com.aisl.shop.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,11 +18,7 @@ public class CategoryService {
 
     public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(c -> CategoryResponse.builder()
-                        .id(c.getId())
-                        .name(c.getName())
-                        .createdAt(c.getCreatedAt())
-                        .build())
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -34,8 +29,7 @@ public class CategoryService {
 
         Category category = Category.builder()
                 .name(request.getName())
-                .createdAt(LocalDateTime.now())
-                .build();
+                .build();  // createdAt은 자동 처리
 
         return toResponse(categoryRepository.save(category));
     }

@@ -66,6 +66,6 @@ public class Order {
     }
 
     public enum OrderStatus {
-        PENDING, PAID, CANCELLED, COMPLETED // ✅ 구매확정 상태 추가
+        PENDING, PAID, CANCELLED, COMPLETED //  구매확정 상태 추가
     }
 }

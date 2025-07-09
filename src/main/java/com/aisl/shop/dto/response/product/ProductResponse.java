@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,4 +18,7 @@ public class ProductResponse {
     private Long categoryId;
     private String thumbnailUrl;
     private LocalDateTime createdAt;
+
+    //  옵션 정보 포함
+    private List<ProductOptionResponse> options;
 }

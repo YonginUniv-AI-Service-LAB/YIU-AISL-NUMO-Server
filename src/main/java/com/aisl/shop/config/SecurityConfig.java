@@ -1,10 +1,7 @@
-
 package com.aisl.shop.config;
 
-import com.aisl.shop.handler.auth.OAuth2SuccessHandler;
 import com.aisl.shop.jwt.JwtAuthenticationFilter;
 import com.aisl.shop.jwt.JwtProvider;
-import com.aisl.shop.service.auth.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -32,18 +27,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/emails/**", "/auth/**", "/oauth2/**"
+                                "/emails/**", "/auth/**" // 인증 관련 요청 허용
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated() // 나머지는 인증 필요
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/auth/login")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
-                        .successHandler(oAuth2SuccessHandler)
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }

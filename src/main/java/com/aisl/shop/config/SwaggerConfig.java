@@ -19,13 +19,13 @@ public class SwaggerConfig {
                         .title("Shopping Mall API")
                         .description("쇼핑몰 프로젝트용 Swagger 문서입니다.")
                         .version("v1.0"))
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName)) // ✅ 보안 요구사항
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName)) //  보안 요구사항
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
                                 .name(securitySchemeName)
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
-                                .bearerFormat("JWT") // ✅ JWT 사용 명시
+                                .bearerFormat("JWT") //  JWT 사용 명시
                         )
                 );
     }

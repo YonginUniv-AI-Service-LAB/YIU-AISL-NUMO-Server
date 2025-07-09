@@ -9,6 +9,6 @@ public class OAuthSuccessController {
 
     @GetMapping("/auth/oauth/success")
     public String success(@RequestParam String token) {
-        return "✅ 소셜 로그인 성공!<br/>JWT 토큰:<br/><code>" + token + "</code>";
+        return "소셜 로그인 성공!<br/>JWT 토큰:<br/><code>" + token + "</code>";
     }
 }

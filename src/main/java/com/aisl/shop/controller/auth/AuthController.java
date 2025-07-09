@@ -22,9 +22,9 @@ public class AuthController {
     private final SignupService signupService;
     private final JwtProvider jwtProvider;
 
-    // ✅ 로그인 (access + refresh 토큰 발급)
+    //  로그인 (access + refresh 토큰 발급)
     @PostMapping("/token")
-    public ResponseEntity<Void> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(request);
 
         ResponseCookie accessCookie = ResponseCookie.from("access_token", tokenResponse.getAccessToken())
@@ -46,10 +46,12 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        return ResponseEntity.ok().build();
+        //  토큰 정보를 응답 바디로도 내려줌 (Swagger에서 확인 가능)
+        return ResponseEntity.ok(tokenResponse);
     }
 
-    // ✅ access token 재발급
+
+    //  access token 재발급
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissueAccessToken(
             @CookieValue(name = "refresh_token", required = false) String refreshToken,
@@ -80,14 +82,14 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-    // ✅ 회원가입
+    //  회원가입
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@RequestBody SignupRequest request) {
         signupService.signup(request);
         return ResponseEntity.ok().build();
     }
 
-    // ✅ 로그아웃
+    // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         ResponseCookie accessCookie = ResponseCookie.from("access_token", "")

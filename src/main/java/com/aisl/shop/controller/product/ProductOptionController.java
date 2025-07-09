@@ -2,7 +2,7 @@ package com.aisl.shop.controller.product;
 
 import com.aisl.shop.dto.request.product.ProductOptionRequest;
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
-import com.aisl.shop.service.ProductOptionService;
+import com.aisl.shop.service.product.ProductOptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

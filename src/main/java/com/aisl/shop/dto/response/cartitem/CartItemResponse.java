@@ -13,6 +13,8 @@ public class CartItemResponse {
     private Long id;
     private Long userId;
     private Long productId;
+    private String color;
+    private String size;
     private Integer quantity;
     private LocalDateTime createdAt;
 }

@@ -69,7 +69,7 @@ public class GoogleOAuthService {
             newUser.setProviderId(sub);
             newUser.setRole(User.Role.USER);
             newUser.setNickname("google_" + sub.substring(0, 6));
-            newUser.setPhone("010-0000-0000");
+
 
             User savedUser = userRepository.save(newUser);
             log.info("[Google Login] 신규 구글 사용자 가입 완료: {}", email);

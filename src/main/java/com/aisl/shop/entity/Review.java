@@ -1,5 +1,8 @@
 package com.aisl.shop.entity;
 
+import com.aisl.shop.enums.ColorOpinion;
+import com.aisl.shop.enums.QualityOpinion;
+import com.aisl.shop.enums.SizeOpinion;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,13 +27,22 @@ public class Review {
 
     private Long productId;
 
+    @Column(nullable = false)
     private int rating; // 1~5
 
-    private String sizeOpinion;   // "작아요", "딱 맞아요", "커요"
-    private String colorOpinion;  // "어두워요", "화면과 같아요", "밝아요"
-    private String qualityOpinion;// "별로예요", "괜찮아요", "아주 좋아요"
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SizeOpinion sizeOpinion;
 
-    @Column(columnDefinition = "TEXT")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ColorOpinion colorOpinion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private QualityOpinion qualityOpinion;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @ElementCollection

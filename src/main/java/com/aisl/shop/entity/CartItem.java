@@ -24,6 +24,12 @@ public class CartItem {
     private Long productId;
 
     @Column(nullable = false)
+    private String color;
+
+    @Column(nullable = false)
+    private String size;
+
+    @Column(nullable = false)
     private Integer quantity;
 
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -16,7 +16,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ 회원가입
+    // ✅ 회원가입 (phone 제거됨)
     public void signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
@@ -26,7 +26,6 @@ public class UserService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .phone(request.getPhone())
                 .nickname(request.getNickname())
                 .role(User.Role.USER)
                 .provider(User.Provider.LOCAL)
@@ -42,14 +41,14 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-    // ✅ 내 정보 수정
+    // ✅ 내 정보 수정 (phone은 남겨둠 — 필요 시 제거 가능)
     public void updateMyInfo(Long userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         user.setName(request.getName());
         user.setNickname(request.getNickname());
-        user.setPhone(request.getPhone());
+      
 
         userRepository.save(user);
     }

@@ -31,11 +31,11 @@ public class SignupService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
-                .phone(request.getPhone())
                 .nickname(request.getNickname())
-                .role(User.Role.USER) //  내부 enum 명시적 접근
-                .provider(User.Provider.LOCAL) //  내부 enum 명시적 접근
+                .role(User.Role.USER)
+                .provider(User.Provider.LOCAL)
                 .build();
+
 
         userRepository.save(user);
 

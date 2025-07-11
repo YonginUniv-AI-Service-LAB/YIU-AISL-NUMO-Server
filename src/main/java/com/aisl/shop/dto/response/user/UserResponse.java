@@ -10,7 +10,6 @@ public class UserResponse {
     private String email;
     private String name;
     private String nickname;
-    private String phone;
     private String role;
 
     public static UserResponse from(User user) {
@@ -18,9 +17,7 @@ public class UserResponse {
                 user.getEmail(),
                 user.getName(),
                 user.getNickname(),
-                user.getPhone(),
-                user.getRole().name()  // ✅ enum → String 변환
+                user.getRole().name()
         );
     }
-
 }

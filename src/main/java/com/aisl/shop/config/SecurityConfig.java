@@ -25,11 +25,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/emails/**", "/auth/**" // 인증 관련 요청 허용
-                        ).permitAll()
-                        .anyRequest().authenticated() // 나머지는 인증 필요
+                        .anyRequest().permitAll() // ✅ 모든 요청 허용
                 )
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),

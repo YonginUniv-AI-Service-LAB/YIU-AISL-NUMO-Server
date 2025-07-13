@@ -19,6 +19,11 @@ public class ProductResponse {
     private String thumbnailUrl;
     private LocalDateTime createdAt;
 
-    //  옵션 정보 포함
+    private String brand;
+    private Integer discountRate;
+    private Integer discountPrice;
+    private List<String> keywords;
+    private List<String> imageUrls;
+
     private List<ProductOptionResponse> options;
 }

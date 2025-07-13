@@ -1,4 +1,4 @@
-package com.aisl.shop.service.habit;
+package com.aisl.shop.service.habit;  // 소비 기록 저장
 
 import com.aisl.shop.dto.request.habit.PurchaseRequest;
 import com.aisl.shop.entity.Purchase;

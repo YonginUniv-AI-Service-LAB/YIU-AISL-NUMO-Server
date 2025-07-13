@@ -26,17 +26,24 @@ public class JwtProvider {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    //  Access Token 생성 (userId 기반)
+    // 사용자 ID만으로 생성 (기본 USER 권한)
     public String generateAccessToken(Long userId) {
+        return generateAccessToken(userId, "USER");
+    }
+
+
+    // ✅ Access Token 생성 (userId + role)
+    public String generateAccessToken(Long userId, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    //  Refresh Token 생성 (email 기반)
+    // ✅ Refresh Token 생성 (email 기반)
     public String generateRefreshToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -46,18 +53,27 @@ public class JwtProvider {
                 .compact();
     }
 
-    // Access Token에서 userId 꺼내기
+    // ✅ Access Token에서 userId 추출
     public Long getUserId(String token) {
         try {
-            String subject = extractAllClaims(token).getSubject();
-            return Long.parseLong(subject);
+            return Long.parseLong(extractAllClaims(token).getSubject());
         } catch (Exception e) {
             System.out.println("[JwtProvider] userId 추출 실패: " + e.getMessage());
             return null;
         }
     }
 
-    //  Refresh Token에서 email 꺼내기
+    // ✅ Access Token에서 role 추출
+    public String getRole(String token) {
+        try {
+            return extractAllClaims(token).get("role", String.class);
+        } catch (Exception e) {
+            System.out.println("[JwtProvider] role 추출 실패: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // ✅ Refresh Token에서 email 꺼내기
     public String getEmail(String token) {
         try {
             return extractAllClaims(token).getSubject();
@@ -67,7 +83,7 @@ public class JwtProvider {
         }
     }
 
-    //  유효성 검사
+    // ✅ 유효성 검사
     public boolean isValidToken(String token) {
         try {
             extractAllClaims(token);
@@ -78,7 +94,7 @@ public class JwtProvider {
         }
     }
 
-    //  내부 Claims 추출 (공통)
+    // ✅ 내부 Claims 추출 (공통)
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(signingKey)

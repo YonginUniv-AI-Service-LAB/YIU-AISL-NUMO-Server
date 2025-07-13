@@ -1,8 +1,10 @@
 package com.aisl.shop.dto.request.auth;
-//소셜 로그인 전용
+
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class GoogleLoginRequest {
     private String idToken;
 }

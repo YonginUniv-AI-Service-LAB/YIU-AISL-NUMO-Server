@@ -18,14 +18,19 @@ public class OAuthController {
     private final JwtProvider jwtProvider;
 
     @PostMapping("/google")
-    @Operation(summary = "구글 로그인", description = "구글 id_token을 이용하여 로그인 처리 후 JWT 발급")
+    @Operation(summary = "구글 로그인", description = "Google ID Token으로 로그인 처리 후 JWT 반환")
     public AuthResponse loginWithGoogle(@RequestBody GoogleLoginRequest request) {
+        // 1. 사용자 인증 및 회원 조회/생성
         User user = googleOAuthService.loginWithGoogle(request.getIdToken());
 
-        String jwt = jwtProvider.generateAccessToken(user.getId());
+        // 2. 토큰 발급
+        String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
 
+        // 3. JSON 응답으로 access + refresh + user 정보 반환
         return AuthResponse.builder()
-                .accessToken(jwt)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken) // ✅ Bearer 방식용 리프레시 토큰
                 .user(AuthResponse.UserInfo.builder()
                         .id(user.getId())
                         .email(user.getEmail())

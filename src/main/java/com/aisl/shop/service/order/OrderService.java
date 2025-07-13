@@ -8,7 +8,9 @@ import com.aisl.shop.entity.Order;
 import com.aisl.shop.entity.Order.OrderStatus;
 import com.aisl.shop.entity.Order.PaymentMethod;
 import com.aisl.shop.entity.OrderItem;
+import com.aisl.shop.enums.OrderItemStatus;
 import com.aisl.shop.repository.OrderRepository;
+import com.aisl.shop.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public Long createOrder(OrderCreateRequest request) {
         int totalPrice = request.getItems().stream()
@@ -47,6 +50,7 @@ public class OrderService {
                         .quantity(dto.getQuantity())
                         .unitPrice(34110)
                         .totalPrice(dto.getQuantity() * 34110)
+                        .status(OrderItemStatus.PAID)  // ✅ 상태 기본값 설정
                         .build()
                 ).collect(Collectors.toList());
 
@@ -117,7 +121,6 @@ public class OrderService {
         order.setStatus(OrderStatus.PAID);
     }
 
-    // ✅ 구매확정 기능 추가
     public void confirmOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
@@ -127,5 +130,28 @@ public class OrderService {
         }
 
         order.setStatus(OrderStatus.COMPLETED);
+    }
+
+    // ✅ 개별 아이템 취소
+    public void cancelOrderItem(Long itemId) {
+        OrderItem item = getOrderItem(itemId);
+        item.setStatus(OrderItemStatus.CANCELLED);
+    }
+
+    // ✅ 개별 아이템 반품
+    public void returnOrderItem(Long itemId) {
+        OrderItem item = getOrderItem(itemId);
+        item.setStatus(OrderItemStatus.RETURN_REQUESTED);
+    }
+
+    // ✅ 개별 아이템 교환
+    public void exchangeOrderItem(Long itemId) {
+        OrderItem item = getOrderItem(itemId);
+        item.setStatus(OrderItemStatus.EXCHANGE_REQUESTED);
+    }
+
+    private OrderItem getOrderItem(Long itemId) {
+        return orderItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("주문 상품을 찾을 수 없습니다."));
     }
 }

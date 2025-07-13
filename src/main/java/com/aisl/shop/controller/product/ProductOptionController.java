@@ -1,6 +1,5 @@
 package com.aisl.shop.controller.product;
 
-import com.aisl.shop.dto.request.product.ProductOptionRequest;
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
 import com.aisl.shop.service.product.ProductOptionService;
 import lombok.RequiredArgsConstructor;
@@ -10,29 +9,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/products/{productId}/options")
 public class ProductOptionController {
 
     private final ProductOptionService productOptionService;
 
-    @GetMapping("/products/{productId}/options")
+    // 옵션 조회 (사용자용)
+    @GetMapping
     public List<ProductOptionResponse> getOptions(@PathVariable Long productId) {
         return productOptionService.getOptionsByProductId(productId);
-    }
-
-    @PostMapping("/products/{productId}/options")
-    public ProductOptionResponse addOption(@PathVariable Long productId,
-                                           @RequestBody ProductOptionRequest request) {
-        return productOptionService.addOption(productId, request);
-    }
-
-    @PatchMapping("/product-options/{optionId}")
-    public ProductOptionResponse updateStock(@PathVariable Long optionId,
-                                             @RequestParam Integer stock) {
-        return productOptionService.updateStock(optionId, stock);
-    }
-
-    @DeleteMapping("/product-options/{optionId}")
-    public void deleteOption(@PathVariable Long optionId) {
-        productOptionService.deleteOption(optionId);
     }
 }

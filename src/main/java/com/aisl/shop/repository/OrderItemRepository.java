@@ -1,3 +1,4 @@
+// src/main/java/com/aisl/shop/repository/OrderItemRepository.java
 package com.aisl.shop.repository;
 
 import com.aisl.shop.entity.OrderItem;

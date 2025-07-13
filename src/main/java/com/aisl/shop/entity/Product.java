@@ -27,10 +27,18 @@ public class Product {
     @Column(nullable = false)
     private Integer price;
 
+    @Column(length = 100)
+    private String brand;
+
+    @Column(name = "discount_rate")
+    private Integer discountRate;
+
+    @Column(name = "discount_price")
+    private Integer discountPrice;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    //  카테고리와 N:1 연관관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -42,7 +50,16 @@ public class Product {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    //  옵션들과 1:N 연관관계
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductOption> options = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "product_keywords", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "keyword")
+    private List<String> keywords;
+
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls;
 }

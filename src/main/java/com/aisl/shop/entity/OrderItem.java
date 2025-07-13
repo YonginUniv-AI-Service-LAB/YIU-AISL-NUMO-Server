@@ -1,5 +1,6 @@
 package com.aisl.shop.entity;
 
+import com.aisl.shop.enums.OrderItemStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,4 +32,9 @@ public class OrderItem {
 
     @Column(nullable = false)
     private Integer totalPrice;
+
+    // ✅ 상태 필드 추가
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderItemStatus status = OrderItemStatus.PAID;
 }

@@ -1,5 +1,5 @@
 package com.aisl.shop.dto.response.auth;
-// 소셜 로그인 전용
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class AuthResponse {
     private String accessToken;
+    private String refreshToken; // ✅ 추가
     private UserInfo user;
 
     @Getter

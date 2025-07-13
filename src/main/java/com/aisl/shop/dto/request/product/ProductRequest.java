@@ -1,4 +1,4 @@
-package com.aisl.shop.dto.request.product;
+package com.aisl.shop.dto.request.product; // 관리자용
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +14,12 @@ public class ProductRequest {
     private Long categoryId;
     private String thumbnailUrl;
 
-    //  옵션 정보 포함
+    private String brand;
+    private Integer discountRate;
+    private Integer discountPrice;
+
+    private List<String> keywords;
+    private List<String> imageUrls;
+
     private List<ProductOptionRequest> options;
 }

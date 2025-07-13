@@ -41,11 +41,12 @@ public class AuthService {
         }
 
         Long userId = user.getId();
-        String accessToken = jwtProvider.generateAccessToken(userId);
-        String refreshToken = jwtProvider.generateRefreshToken(String.valueOf(userId));
+        String role = user.getRole().name(); // ✅ 역할 정보 가져오기
 
-        //  로그인 성공 로그 출력
-        log.info("[로그인 성공] 사용자 ID: {}, 이메일: {}", userId, user.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(userId, role); // ✅ 역할 포함한 토큰 생성
+        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+
+        log.info("[로그인 성공] 사용자 ID: {}, 이메일: {}, 역할: {}", userId, user.getEmail(), role);
 
         // RefreshToken 저장
         refreshTokenStore.put(userId, refreshToken);
@@ -62,7 +63,12 @@ public class AuthService {
             throw new RuntimeException("RefreshToken이 유효하지 않습니다");
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(userId);
+        // 유저의 role도 다시 포함해야 함
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        String newAccessToken = jwtProvider.generateAccessToken(userId, user.getRole().name());
+
         return new TokenResponse(newAccessToken, refreshToken); // 기존 RefreshToken 재사용
     }
 }

@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole().equals("ADMIN")
+                user.getRole() == User.Role.ADMIN // 수정된 부분
         );
     }
 }

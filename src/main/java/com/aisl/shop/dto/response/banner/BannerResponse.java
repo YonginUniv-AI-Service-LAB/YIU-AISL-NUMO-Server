@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Builder
 public class BannerResponse {
     private Long id;
-    private String title;
     private String imageUrl;
-    private String linkUrl;
     private LocalDateTime createdAt;
 }

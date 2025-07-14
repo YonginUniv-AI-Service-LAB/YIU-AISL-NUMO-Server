@@ -1,7 +1,9 @@
 package com.aisl.shop.service.auth;
 
-import com.aisl.shop.entity.User;
 import com.aisl.shop.dto.request.auth.SignupRequest;
+import com.aisl.shop.entity.User;
+import com.aisl.shop.exception.auth.EmailAlreadyExistsException;
+import com.aisl.shop.exception.auth.EmailNotVerifiedException;
 import com.aisl.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,12 +20,12 @@ public class SignupService {
     public void signup(SignupRequest request) {
         // 1. 이메일 인증 여부 확인
         if (!emailAuthService.isVerified(request.getEmail())) {
-            throw new IllegalStateException("이메일 인증이 완료되지 않았습니다.");
+            throw new EmailNotVerifiedException("이메일 인증이 완료되지 않았습니다.");
         }
 
         // 2. 이메일 중복 확인
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalStateException("이미 가입된 이메일입니다.");
+            throw new EmailAlreadyExistsException("이미 가입된 이메일입니다.");
         }
 
         // 3. 회원 정보 저장
@@ -35,7 +37,6 @@ public class SignupService {
                 .role(User.Role.USER)
                 .provider(User.Provider.LOCAL)
                 .build();
-
 
         userRepository.save(user);
 

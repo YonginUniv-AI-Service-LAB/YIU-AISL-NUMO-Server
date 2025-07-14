@@ -19,11 +19,8 @@ public class Banner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
+    @Column(nullable = false)
     private String imageUrl;
-
-    private String linkUrl;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -5,9 +5,12 @@ import com.aisl.shop.dto.request.order.OrderPayRequest;
 import com.aisl.shop.dto.response.order.OrderDetailResponse;
 import com.aisl.shop.dto.response.order.OrderListItemResponse;
 import com.aisl.shop.service.order.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,16 +22,22 @@ public class OrderController {
 
     // 🔹 주문 생성
     @PostMapping
-    public Long createOrder(@RequestBody OrderCreateRequest request) {
+    public Long createOrder(@RequestBody @Valid OrderCreateRequest request) {
         return orderService.createOrder(request);
     }
 
-    // 🔹 내 주문 목록 조회
+
+    // 🔹 내 주문 목록 조회 + 상태 및 기간 필터링
     @GetMapping
-    public List<OrderListItemResponse> getMyOrders() {
+    public List<OrderListItemResponse> getMyOrders(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
         Long userId = 1L; // TODO: 로그인 연동 시 동적 처리
-        return orderService.getOrderList(userId);
+        return orderService.getFilteredOrderList(userId, status, startDate, endDate);
     }
+
 
     // 🔹 주문 상세 조회
     @GetMapping("/{orderId}")

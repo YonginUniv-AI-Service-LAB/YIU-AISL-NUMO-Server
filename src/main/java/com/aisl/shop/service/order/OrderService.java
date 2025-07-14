@@ -9,12 +9,14 @@ import com.aisl.shop.entity.Order.OrderStatus;
 import com.aisl.shop.entity.Order.PaymentMethod;
 import com.aisl.shop.entity.OrderItem;
 import com.aisl.shop.enums.OrderItemStatus;
+import com.aisl.shop.exception.order.*;
 import com.aisl.shop.repository.OrderRepository;
 import com.aisl.shop.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,10 +28,18 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
+    // 🔹 주문 생성
     public Long createOrder(OrderCreateRequest request) {
         int totalPrice = request.getItems().stream()
                 .mapToInt(item -> item.getQuantity() * 34110)
                 .sum();
+
+        PaymentMethod paymentMethod;
+        try {
+            paymentMethod = PaymentMethod.valueOf(request.getPaymentMethod());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidOrderStatusException("유효하지 않은 결제 방식입니다.");
+        }
 
         Order order = Order.builder()
                 .userId(null)
@@ -37,7 +47,7 @@ public class OrderService {
                 .name(request.getName())
                 .phone(request.getPhone())
                 .address(request.getAddress())
-                .paymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()))
+                .paymentMethod(paymentMethod)
                 .totalPrice(totalPrice)
                 .status(OrderStatus.PENDING)
                 .build();
@@ -50,7 +60,7 @@ public class OrderService {
                         .quantity(dto.getQuantity())
                         .unitPrice(34110)
                         .totalPrice(dto.getQuantity() * 34110)
-                        .status(OrderItemStatus.PAID)  // ✅ 상태 기본값 설정
+                        .status(OrderItemStatus.PAID)
                         .build()
                 ).collect(Collectors.toList());
 
@@ -69,9 +79,28 @@ public class OrderService {
                 .build()).collect(Collectors.toList());
     }
 
+    public List<OrderListItemResponse> getFilteredOrderList(Long userId, String status, LocalDate startDate, LocalDate endDate) {
+        OrderStatus enumStatus = null;
+        if (status != null) {
+            try {
+                enumStatus = OrderStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidOrderStatusException("유효하지 않은 주문 상태입니다.");
+            }
+        }
+
+        List<Order> orders = orderRepository.findByFilters(userId, enumStatus, startDate, endDate);
+        return orders.stream().map(order -> OrderListItemResponse.builder()
+                .orderId(order.getId())
+                .status(order.getStatus())
+                .totalPrice(order.getTotalPrice())
+                .createdAt(order.getCreatedAt())
+                .build()).collect(Collectors.toList());
+    }
+
     public OrderDetailResponse getOrderDetail(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
         return OrderDetailResponse.builder()
                 .orderId(order.getId())
@@ -97,10 +126,10 @@ public class OrderService {
 
     public void cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("결제 전 주문만 취소할 수 있습니다.");
+            throw new InvalidOrderStatusException("결제 전 주문만 취소할 수 있습니다.");
         }
 
         order.setStatus(OrderStatus.CANCELLED);
@@ -108,14 +137,14 @@ public class OrderService {
 
     public void payOrder(Long orderId, OrderPayRequest request) {
         if (!request.isMock()) {
-            throw new IllegalArgumentException("실제 결제는 지원하지 않습니다.");
+            throw new UnsupportedPaymentException("실제 결제는 지원하지 않습니다.");
         }
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException("이미 결제되었거나 취소된 주문입니다.");
+            throw new InvalidOrderStatusException("이미 결제되었거나 취소된 주문입니다.");
         }
 
         order.setStatus(OrderStatus.PAID);
@@ -123,28 +152,25 @@ public class OrderService {
 
     public void confirmOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
         if (order.getStatus() != OrderStatus.PAID) {
-            throw new IllegalStateException("결제 완료된 주문만 구매확정할 수 있습니다.");
+            throw new InvalidOrderStatusException("결제 완료된 주문만 구매확정할 수 있습니다.");
         }
 
         order.setStatus(OrderStatus.COMPLETED);
     }
 
-    // ✅ 개별 아이템 취소
     public void cancelOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
         item.setStatus(OrderItemStatus.CANCELLED);
     }
 
-    // ✅ 개별 아이템 반품
     public void returnOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
         item.setStatus(OrderItemStatus.RETURN_REQUESTED);
     }
 
-    // ✅ 개별 아이템 교환
     public void exchangeOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
         item.setStatus(OrderItemStatus.EXCHANGE_REQUESTED);
@@ -152,6 +178,6 @@ public class OrderService {
 
     private OrderItem getOrderItem(Long itemId) {
         return orderItemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("주문 상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new OrderItemNotFoundException("주문 상품을 찾을 수 없습니다."));
     }
 }

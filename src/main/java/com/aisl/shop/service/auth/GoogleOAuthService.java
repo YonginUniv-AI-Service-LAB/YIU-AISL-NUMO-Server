@@ -2,8 +2,9 @@ package com.aisl.shop.service.auth;
 
 import com.aisl.shop.entity.User;
 import com.aisl.shop.repository.UserRepository;
-import com.aisl.shop.exception.ConflictException;
-import com.aisl.shop.exception.UnauthorizedException;
+import com.aisl.shop.exception.common.ConflictException;
+import com.aisl.shop.exception.common.UnauthorizedException;
+import com.aisl.shop.exception.auth.GoogleLoginException; // ✅ 추가한 예외
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.util.Utils;
@@ -39,7 +40,7 @@ public class GoogleOAuthService {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
                 log.warn("❌ 유효하지 않은 Google ID Token입니다.");
-                throw new UnauthorizedException("❌ 유효하지 않은 Google ID Token입니다.");
+                throw new UnauthorizedException("유효하지 않은 Google ID Token입니다.");
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -54,32 +55,30 @@ public class GoogleOAuthService {
                 User existingUser = userOpt.get();
 
                 if (existingUser.getProvider() != User.Provider.GOOGLE) {
-                    log.warn("[Google Login] 이메일 중복 - 다른 방식으로 가입된 사용자: {}", email);
+                    log.warn("이미 다른 방식으로 가입된 이메일: {}", email);
                     throw new ConflictException("이미 다른 방식(일반 회원가입)으로 가입된 이메일입니다.");
                 }
 
-                log.info("[Google Login] 기존 구글 사용자 로그인 성공: {}", email);
                 return existingUser;
             }
 
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setName(name != null ? name : "GoogleUser");
-            newUser.setProvider(User.Provider.GOOGLE);
-            newUser.setProviderId(sub);
-            newUser.setRole(User.Role.USER);
-            newUser.setNickname("google_" + sub.substring(0, 6));
+            // 신규 사용자 등록
+            User newUser = User.builder()
+                    .email(email)
+                    .name(name != null ? name : "GoogleUser")
+                    .provider(User.Provider.GOOGLE)
+                    .providerId(sub)
+                    .role(User.Role.USER)
+                    .nickname("google_" + sub.substring(0, 6))
+                    .build();
 
-
-            User savedUser = userRepository.save(newUser);
-            log.info("[Google Login] 신규 구글 사용자 가입 완료: {}", email);
-            return savedUser;
+            return userRepository.save(newUser);
 
         } catch (UnauthorizedException | ConflictException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Google 로그인 처리 중 예외 발생", e);
-            throw new RuntimeException("Google 로그인 처리 중 서버 오류가 발생했습니다.");
+            log.error("[Google 로그인 오류]", e);
+            throw new GoogleLoginException("Google 로그인 처리 중 오류가 발생했습니다.", e);
         }
     }
 }

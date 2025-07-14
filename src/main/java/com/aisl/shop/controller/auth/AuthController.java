@@ -7,6 +7,7 @@ import com.aisl.shop.jwt.JwtProvider;
 import com.aisl.shop.service.auth.AuthService;
 import com.aisl.shop.service.auth.SignupService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class AuthController {
 
     //  로그인 (access + refresh 토큰 발급)
     @PostMapping("/token")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(request);
 
         ResponseCookie accessCookie = ResponseCookie.from("access_token", tokenResponse.getAccessToken())
@@ -46,9 +47,9 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        //  토큰 정보를 응답 바디로도 내려줌 (Swagger에서 확인 가능)
         return ResponseEntity.ok(tokenResponse);
     }
+
 
 
     //  access token 재발급
@@ -84,10 +85,11 @@ public class AuthController {
 
     //  회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequest request) {
         signupService.signup(request);
         return ResponseEntity.ok().build();
     }
+
 
     // 로그아웃
     @PostMapping("/logout")

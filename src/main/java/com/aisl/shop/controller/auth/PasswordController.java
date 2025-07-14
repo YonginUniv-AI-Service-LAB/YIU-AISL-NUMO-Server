@@ -1,7 +1,8 @@
-package com.aisl.shop.controller.user;
+package com.aisl.shop.controller.auth;
 
-import com.aisl.shop.dto.request.user.PasswordResetRequest;
-import com.aisl.shop.service.user.PasswordService;
+import com.aisl.shop.dto.request.auth.PasswordResetRequest;
+import com.aisl.shop.service.auth.PasswordService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ public class PasswordController {
     private final PasswordService passwordService;
 
     @PatchMapping("/password")
-    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
+    public ResponseEntity<?> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
         passwordService.resetPassword(request);
         return ResponseEntity.ok().build();
     }

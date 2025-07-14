@@ -1,4 +1,4 @@
-package com.aisl.shop.service.helper;
+package com.aisl.shop.service;
 
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
 import com.aisl.shop.dto.response.product.ProductResponse;

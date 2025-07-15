@@ -2,11 +2,12 @@ package com.aisl.shop.service.product;
 
 import com.aisl.shop.dto.response.product.ProductResponse;
 import com.aisl.shop.entity.Product;
-import com.aisl.shop.service.ProductDtoMapper;
+import com.aisl.shop.exception.product.ProductNotFoundException;
 import com.aisl.shop.repository.ProductRepository;
+import com.aisl.shop.service.ProductDtoMapper;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 
@@ -15,26 +16,38 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductDtoMapper productDtoMapper; // 별도 분리해도 좋음
+    private final ProductDtoMapper productDtoMapper;
 
+    /**
+     * 전체 상품 목록 조회
+     */
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(productDtoMapper::toDto)
                 .toList();
     }
 
+    /**
+     * 상품 단건 조회
+     */
     public ProductResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException(id));
         return productDtoMapper.toDto(product);
     }
 
+    /**
+     * 카테고리별 상품 목록 조회
+     */
     public List<ProductResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategory_Id(categoryId).stream()
                 .map(productDtoMapper::toDto)
                 .toList();
     }
 
+    /**
+     * 키워드로 상품 검색
+     */
     public List<ProductResponse> searchProducts(String keyword) {
         return productRepository.findByNameContaining(keyword).stream()
                 .map(productDtoMapper::toDto)

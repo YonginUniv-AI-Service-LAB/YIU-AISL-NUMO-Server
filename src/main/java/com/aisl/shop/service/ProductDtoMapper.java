@@ -30,6 +30,11 @@ public class ProductDtoMapper {
                 .categoryId(product.getCategory().getId())
                 .thumbnailUrl(product.getThumbnailUrl())
                 .createdAt(product.getCreatedAt())
+                .brand(product.getBrand())
+                .discountRate(product.getDiscountRate())
+                .discountPrice(product.getDiscountPrice())
+                .keywords(product.getKeywords())         // List<String>
+                .imageUrls(product.getImageUrls())       // List<String>
                 .options(optionResponses)
                 .build();
     }

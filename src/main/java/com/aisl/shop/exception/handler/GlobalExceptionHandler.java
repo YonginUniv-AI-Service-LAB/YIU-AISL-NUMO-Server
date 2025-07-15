@@ -1,8 +1,15 @@
 package com.aisl.shop.exception.handler;
 
 import com.aisl.shop.exception.auth.*;
+import com.aisl.shop.exception.cartitem.CartItemAlreadyExistsException;
+import com.aisl.shop.exception.cartitem.CartItemNotFoundException;
+import com.aisl.shop.exception.cartitem.InvalidCartItemQuantityException;
 import com.aisl.shop.exception.common.ApiError;
 import com.aisl.shop.exception.order.*;
+import com.aisl.shop.exception.product.*;
+import com.aisl.shop.exception.productoption.DuplicateProductOptionException;
+import com.aisl.shop.exception.productoption.InvalidStockQuantityException;
+import com.aisl.shop.exception.productoption.ProductOptionNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +24,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ✅ [1] 로그인 실패 (Spring Security 인증 오류)
+    // ✅ [1] 로그인 실패
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         log.warn("[로그인 실패] {}", ex.getMessage());
@@ -25,7 +32,7 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("BAD_CREDENTIALS", "아이디 또는 비밀번호가 잘못되었습니다."));
     }
 
-    // ✅ [2] 유효성 검사 실패 (Validation)
+    // ✅ [2] 유효성 검사 실패
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult()
@@ -37,7 +44,7 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("VALIDATION_FAILED", errorMessage));
     }
 
-    // ✅ [3] 회원 도메인 관련 예외
+    // ✅ [3] 회원 관련 예외
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -86,7 +93,7 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("GOOGLE_LOGIN_FAILED", ex.getMessage()));
     }
 
-    // ✅ [4] 주문(Order) 관련 예외
+    // ✅ [4] 주문 관련 예외
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<ApiError> handleOrderNotFound(OrderNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -129,7 +136,70 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("UNSUPPORTED_PAYMENT", ex.getMessage()));
     }
 
-    // ✅ [5] 기타 Runtime 예외 (마지막 방어선)
+    // ✅ [5] 상품 관련 예외
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductNotFound(ProductNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("PRODUCT_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateProductNameException.class)
+    public ResponseEntity<ApiError> handleDuplicateProductName(DuplicateProductNameException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError("DUPLICATE_PRODUCT_NAME", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidDiscountRateException.class)
+    public ResponseEntity<ApiError> handleInvalidDiscountRate(InvalidDiscountRateException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("INVALID_DISCOUNT_RATE", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidProductOptionException.class)
+    public ResponseEntity<ApiError> handleInvalidProductOption(InvalidProductOptionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("INVALID_PRODUCT_OPTION", ex.getMessage()));
+    }
+
+    // ✅ [6] 상품 옵션 관련 예외 (하나만 유지)
+    @ExceptionHandler(ProductOptionNotFoundException.class)
+    public ResponseEntity<ApiError> handleProductOptionNotFound(ProductOptionNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("OPTION_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateProductOptionException.class)
+    public ResponseEntity<ApiError> handleDuplicateOption(DuplicateProductOptionException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError("DUPLICATE_OPTION", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidStockQuantityException.class)
+    public ResponseEntity<ApiError> handleInvalidStock(InvalidStockQuantityException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("INVALID_STOCK", ex.getMessage()));
+    }
+
+    // ✅ [7] 장바구니 관련 예외
+    @ExceptionHandler(CartItemAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleCartItemExists(CartItemAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError("CART_ITEM_EXISTS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CartItemNotFoundException.class)
+    public ResponseEntity<ApiError> handleCartItemNotFound(CartItemNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("CART_ITEM_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCartItemQuantityException.class)
+    public ResponseEntity<ApiError> handleInvalidQuantity(InvalidCartItemQuantityException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("INVALID_CART_QUANTITY", ex.getMessage()));
+    }
+
+    // ✅ [8] 기타 예외 (마지막 방어선)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleRuntime(RuntimeException ex) {
         log.error("[서버 오류] {}", ex.getMessage(), ex);

@@ -14,7 +14,10 @@ public class ProductOptionController {
 
     private final ProductOptionService productOptionService;
 
-    // 옵션 조회 (사용자용)
+    /**
+     * ✅ 특정 상품의 옵션 목록 조회 (사용자용)
+     * GET /products/{productId}/options
+     */
     @GetMapping
     public List<ProductOptionResponse> getOptions(@PathVariable Long productId) {
         return productOptionService.getOptionsByProductId(productId);

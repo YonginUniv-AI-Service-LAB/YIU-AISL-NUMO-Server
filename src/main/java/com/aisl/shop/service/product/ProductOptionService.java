@@ -2,6 +2,7 @@ package com.aisl.shop.service.product;
 
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
 import com.aisl.shop.entity.ProductOption;
+import com.aisl.shop.exception.productoption.ProductOptionNotFoundException;
 import com.aisl.shop.repository.ProductOptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,13 @@ public class ProductOptionService {
      * ✅ 특정 상품의 옵션 목록 조회 (사용자용)
      */
     public List<ProductOptionResponse> getOptionsByProductId(Long productId) {
-        return productOptionRepository.findByProduct_Id(productId).stream()
+        List<ProductOption> options = productOptionRepository.findByProduct_Id(productId);
+
+        if (options.isEmpty()) {
+            throw new ProductOptionNotFoundException(productId);  // 예외 처리 추가
+        }
+
+        return options.stream()
                 .map(this::toDto)
                 .toList();
     }

@@ -2,15 +2,14 @@ package com.aisl.shop.dto.response.product;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
 @Builder
 public class ProductResponse {
+
     private Long id;
     private String name;
     private Integer price;
@@ -22,6 +21,7 @@ public class ProductResponse {
     private String brand;
     private Integer discountRate;
     private Integer discountPrice;
+
     private List<String> keywords;
     private List<String> imageUrls;
 

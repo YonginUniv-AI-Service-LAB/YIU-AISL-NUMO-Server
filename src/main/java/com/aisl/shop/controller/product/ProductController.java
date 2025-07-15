@@ -14,22 +14,33 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // 전체 조회 or 키워드 검색
+    /**
+     * 전체 상품 조회 또는 키워드 검색
+     * GET /products?search=키워드
+     */
     @GetMapping
-    public List<ProductResponse> getAllProducts(@RequestParam(value = "search", required = false) String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
+    public List<ProductResponse> getAllProducts(
+            @RequestParam(value = "search", required = false) String keyword) {
+
+        if (keyword == null || keyword.trim().isEmpty()) {
             return productService.getAllProducts();
         }
-        return productService.searchProducts(keyword);
+        return productService.searchProducts(keyword.trim());
     }
 
-    // 상품 상세 조회
+    /**
+     * 상품 상세 조회
+     * GET /products/{id}
+     */
     @GetMapping("/{id}")
     public ProductResponse getProduct(@PathVariable Long id) {
-        return productService.getProduct(id);
+        return productService.getProduct(id); // ProductNotFoundException 처리됨
     }
 
-    // 카테고리별 상품 조회
+    /**
+     * 카테고리별 상품 조회
+     * GET /products/category/{categoryId}
+     */
     @GetMapping("/category/{categoryId}")
     public List<ProductResponse> getProductsByCategory(@PathVariable Long categoryId) {
         return productService.getProductsByCategory(categoryId);

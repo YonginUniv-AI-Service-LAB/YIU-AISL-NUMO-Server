@@ -3,6 +3,7 @@ package com.aisl.shop.service.habit;
 import com.aisl.shop.dto.request.habit.SpendingGoalRequest;
 import com.aisl.shop.dto.response.habit.SpendingGoalResponse;
 import com.aisl.shop.entity.SpendingGoal;
+import com.aisl.shop.exception.habit.SpendingGoalNotFoundException;
 import com.aisl.shop.repository.SpendingGoalRepository;
 import com.aisl.shop.repository.PurchaseRepository;
 import jakarta.transaction.Transactional;
@@ -21,7 +22,7 @@ import java.util.Optional;
 public class SpendingGoalService {
 
     private final SpendingGoalRepository spendingGoalRepository;
-    private final PurchaseRepository purchaseRepository; // 추가
+    private final PurchaseRepository purchaseRepository;
 
     /**
      * 소비 목표 생성 또는 수정 (Upsert)
@@ -53,18 +54,15 @@ public class SpendingGoalService {
      */
     public SpendingGoalResponse getSpendingGoal(Long userId, String yearMonth) {
         SpendingGoal goal = spendingGoalRepository.findByUserIdAndYearMonth(userId, yearMonth)
-                .orElseThrow(() -> new IllegalArgumentException("해당 월의 소비 목표가 존재하지 않습니다."));
+                .orElseThrow(() -> new SpendingGoalNotFoundException("해당 월(" + yearMonth + ")의 소비 목표가 존재하지 않습니다."));
 
-        // 현재 소비액
         Integer currentSpending = purchaseRepository.sumAmountByUserAndMonth(userId, yearMonth);
         if (currentSpending == null) currentSpending = 0;
 
-        // 전월 소비액
         String lastMonth = getPreviousMonth(yearMonth);
         Integer lastMonthSpending = purchaseRepository.sumAmountByUserAndMonth(userId, lastMonth);
         if (lastMonthSpending == null) lastMonthSpending = 0;
 
-        // 카테고리별 소비
         List<Object[]> categoryData = purchaseRepository.sumAmountByCategory(userId, yearMonth);
         List<SpendingGoalResponse.CategorySpending> categories = new ArrayList<>();
 
@@ -80,7 +78,6 @@ public class SpendingGoalService {
                     .build());
         }
 
-        // 응답 DTO 생성
         return SpendingGoalResponse.builder()
                 .yearMonth(yearMonth)
                 .targetAmount(goal.getTargetAmount())
@@ -100,7 +97,7 @@ public class SpendingGoalService {
     @Transactional
     public void deleteSpendingGoal(Long userId, String yearMonth) {
         SpendingGoal goal = spendingGoalRepository.findByUserIdAndYearMonth(userId, yearMonth)
-                .orElseThrow(() -> new IllegalArgumentException("삭제할 소비 목표가 존재하지 않습니다."));
+                .orElseThrow(() -> new SpendingGoalNotFoundException("삭제할 소비 목표(" + yearMonth + ")가 존재하지 않습니다."));
         spendingGoalRepository.delete(goal);
     }
 

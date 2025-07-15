@@ -17,5 +17,6 @@ public class ProductOptionResponse {
     private String color;
     private String size;
     private Integer stock;
+    private Integer additionalPrice;
     private LocalDateTime createdAt;
 }

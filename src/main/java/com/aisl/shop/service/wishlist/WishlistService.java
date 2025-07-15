@@ -3,6 +3,8 @@ package com.aisl.shop.service.wishlist;
 import com.aisl.shop.dto.request.wishlist.WishlistRequestDto;
 import com.aisl.shop.dto.response.wishlist.WishlistResponseDto;
 import com.aisl.shop.entity.Wishlist;
+import com.aisl.shop.exception.wishlist.WishlistAlreadyExistsException;
+import com.aisl.shop.exception.wishlist.WishlistNotFoundException;
 import com.aisl.shop.repository.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,17 @@ public class WishlistService {
 
     private final WishlistRepository wishlistRepository;
 
+    /**
+     * 찜 추가
+     */
     @Transactional
     public void addWishlist(Long userId, WishlistRequestDto request) {
-        wishlistRepository.findByUserIdAndProductId(userId, request.getProductId())
-                .ifPresent(w -> { throw new IllegalArgumentException("이미 찜한 상품입니다."); });
+        boolean exists = wishlistRepository
+                .existsByUserIdAndProductId(userId, request.getProductId());
+
+        if (exists) {
+            throw new WishlistAlreadyExistsException("이미 찜한 상품입니다.");
+        }
 
         Wishlist wishlist = Wishlist.builder()
                 .userId(userId)
@@ -32,6 +41,9 @@ public class WishlistService {
         wishlistRepository.save(wishlist);
     }
 
+    /**
+     * 찜 목록 조회
+     */
     public List<WishlistResponseDto> getWishlists(Long userId) {
         return wishlistRepository.findByUserId(userId).stream()
                 .map(w -> WishlistResponseDto.builder()
@@ -42,8 +54,14 @@ public class WishlistService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 찜 삭제
+     */
     @Transactional
     public void deleteWishlist(Long userId, Long productId) {
-        wishlistRepository.deleteByUserIdAndProductId(userId, productId);
+        Wishlist wishlist = wishlistRepository.findByUserIdAndProductId(userId, productId)
+                .orElseThrow(() -> new WishlistNotFoundException("찜 내역이 존재하지 않습니다."));
+
+        wishlistRepository.delete(wishlist);
     }
 }

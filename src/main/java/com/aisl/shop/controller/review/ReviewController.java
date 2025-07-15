@@ -4,6 +4,7 @@ import com.aisl.shop.dto.request.review.ReviewRequest;
 import com.aisl.shop.dto.response.review.ReviewResponse;
 import com.aisl.shop.service.review.ReviewService;
 import com.aisl.shop.config.CustomUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,22 +21,37 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    /**
+     * 리뷰 등록
+     */
     @PostMapping
-    public ResponseEntity<?> createReview(@RequestBody ReviewRequest request,
-                                          @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<?> createReview(
+            @Valid @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
         reviewService.createReview(user.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "리뷰가 성공적으로 등록되었습니다."));
     }
 
+    /**
+     * 상품별 리뷰 목록 조회
+     */
     @GetMapping("/product/{productId}")
-    public ResponseEntity<List<ReviewResponse>> getReviews(@PathVariable Long productId) {
+    public ResponseEntity<List<ReviewResponse>> getReviews(
+            @PathVariable Long productId
+    ) {
         return ResponseEntity.ok(reviewService.getReviewsByProduct(productId));
     }
 
+    /**
+     * 리뷰 삭제
+     */
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId,
-                                          @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<?> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
         reviewService.deleteReview(reviewId, user.getId(), user.isAdmin());
         return ResponseEntity.ok(Map.of("message", "리뷰가 삭제되었습니다."));
     }

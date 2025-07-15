@@ -33,6 +33,9 @@ public class ProductOption {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(name = "additional_price", nullable = false)
+    private Integer additionalPrice;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;

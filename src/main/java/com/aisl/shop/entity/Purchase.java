@@ -16,11 +16,15 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long userId;
 
+    @Column(nullable = false)
     private Integer amount;
 
-    private String category; // 예: "상의", "하의", "신발"
+    @Column(nullable = false, length = 50)
+    private String category; // 예: "상의", "하의", "신발" 등
 
-    private String yearMonth; // 예: "2025-07"
+    @Column(nullable = false, length = 7)
+    private String yearMonth; // "2025-07"
 }

@@ -4,13 +4,17 @@ import com.aisl.shop.dto.request.product.ProductOptionRequest;
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
 import com.aisl.shop.entity.Product;
 import com.aisl.shop.entity.ProductOption;
+import com.aisl.shop.exception.admin.ProductNotFoundException;
+import com.aisl.shop.exception.admin.ProductOptionNotFoundException;
 import com.aisl.shop.repository.ProductOptionRepository;
 import com.aisl.shop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AdminProductOptionService {
 
     private final ProductOptionRepository productOptionRepository;
@@ -21,16 +25,18 @@ public class AdminProductOptionService {
      */
     public ProductOptionResponse addOption(Long productId, ProductOptionRequest request) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("해당 상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException(productId));
 
         ProductOption option = ProductOption.builder()
                 .product(product)
                 .color(request.getColor())
                 .size(request.getSize())
                 .stock(request.getStock())
+                .additionalPrice(request.getAdditionalPrice())
                 .build();
 
-        return toDto(productOptionRepository.save(option));
+        ProductOption savedOption = productOptionRepository.save(option);
+        return toDto(savedOption);
     }
 
     /**
@@ -38,16 +44,21 @@ public class AdminProductOptionService {
      */
     public ProductOptionResponse updateStock(Long optionId, Integer stock) {
         ProductOption option = productOptionRepository.findById(optionId)
-                .orElseThrow(() -> new RuntimeException("해당 옵션을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductOptionNotFoundException(optionId));
+
         option.setStock(stock);
-        return toDto(productOptionRepository.save(option));
+        ProductOption updatedOption = productOptionRepository.save(option);
+        return toDto(updatedOption);
     }
 
     /**
      * ✅ 옵션 삭제 (관리자)
      */
     public void deleteOption(Long optionId) {
-        productOptionRepository.deleteById(optionId);
+        ProductOption option = productOptionRepository.findById(optionId)
+                .orElseThrow(() -> new ProductOptionNotFoundException(optionId));
+
+        productOptionRepository.delete(option);
     }
 
     /**
@@ -60,6 +71,7 @@ public class AdminProductOptionService {
                 .color(option.getColor())
                 .size(option.getSize())
                 .stock(option.getStock())
+                .additionalPrice(option.getAdditionalPrice())
                 .createdAt(option.getCreatedAt())
                 .build();
     }

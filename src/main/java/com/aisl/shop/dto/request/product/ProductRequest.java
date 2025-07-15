@@ -37,7 +37,10 @@ public class ProductRequest {
     @Min(value = 0, message = "할인 가격은 0 이상이어야 합니다.")
     private Integer discountPrice;
 
+    @NotEmpty(message = "키워드를 하나 이상 입력해주세요.")
     private List<@NotBlank(message = "키워드를 비워둘 수 없습니다.") String> keywords;
+
+    @NotEmpty(message = "상품 이미지를 하나 이상 등록해주세요.")
     private List<@NotBlank(message = "이미지 URL을 비워둘 수 없습니다.") String> imageUrls;
 
     @NotEmpty(message = "옵션은 하나 이상 등록되어야 합니다.")

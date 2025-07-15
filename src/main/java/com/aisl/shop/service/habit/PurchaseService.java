@@ -1,4 +1,4 @@
-package com.aisl.shop.service.habit;  // 소비 기록 저장
+package com.aisl.shop.service.habit;
 
 import com.aisl.shop.dto.request.habit.PurchaseRequest;
 import com.aisl.shop.entity.Purchase;
@@ -16,8 +16,7 @@ public class PurchaseService {
         Purchase purchase = Purchase.builder()
                 .userId(request.getUserId())
                 .amount(request.getAmount())
-                .category(request.getCategory()
-                )
+                .category(request.getCategory())
                 .yearMonth(request.getYearMonth())
                 .build();
 

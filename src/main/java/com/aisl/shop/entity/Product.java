@@ -62,4 +62,15 @@ public class Product {
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
     private List<String> imageUrls;
+
+    // ✅ 옵션 전체 초기화
+    public void clearOptions() {
+        this.options.clear();
+    }
+
+    // ✅ 옵션 전체 추가
+    public void addOptions(List<ProductOption> options) {
+        this.options.addAll(options);
+        options.forEach(option -> option.setProduct(this));  // 양방향 연관관계 유지
+    }
 }

@@ -1,15 +1,29 @@
 package com.aisl.shop.exception.handler;
 
+import com.aisl.shop.exception.admin.BannerNotFoundException;
 import com.aisl.shop.exception.auth.*;
 import com.aisl.shop.exception.cartitem.CartItemAlreadyExistsException;
 import com.aisl.shop.exception.cartitem.CartItemNotFoundException;
 import com.aisl.shop.exception.cartitem.InvalidCartItemQuantityException;
+import com.aisl.shop.exception.category.CategoryAlreadyExistsException;
+import com.aisl.shop.exception.category.CategoryNotFoundException;
 import com.aisl.shop.exception.common.ApiError;
+import com.aisl.shop.exception.diary.DiaryNotFoundException;
+import com.aisl.shop.exception.habit.SpendingGoalNotFoundException;
 import com.aisl.shop.exception.order.*;
 import com.aisl.shop.exception.product.*;
 import com.aisl.shop.exception.productoption.DuplicateProductOptionException;
 import com.aisl.shop.exception.productoption.InvalidStockQuantityException;
 import com.aisl.shop.exception.productoption.ProductOptionNotFoundException;
+import com.aisl.shop.exception.review.ReviewAccessDeniedException;
+import com.aisl.shop.exception.review.ReviewAlreadyExistsException;
+import com.aisl.shop.exception.review.ReviewNotFoundException;
+import com.aisl.shop.exception.wishlist.WishlistAlreadyExistsException;
+import com.aisl.shop.exception.wishlist.WishlistNotFoundException;
+import com.aisl.shop.exception.user.DuplicateResourceException;
+import com.aisl.shop.exception.user.UserNotFoundException;
+
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +31,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.aisl.shop.exception.user.DuplicateResourceException;
-import com.aisl.shop.exception.user.UserNotFoundException;
 
 import java.util.stream.Collectors;
 
@@ -34,16 +46,15 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("BAD_CREDENTIALS", "아이디 또는 비밀번호가 잘못되었습니다."));
     }
 
-    // ✅ [2] 유효성 검사 실패
+    // ✅ [2] 유효성 검사 실패 (단일 메서드로 통합)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
-        String errorMessage = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        return ResponseEntity.badRequest()
-                .body(new ApiError("VALIDATION_FAILED", errorMessage));
+
+        ApiError apiError = new ApiError("VALIDATION_ERROR", errorMessage);
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
     // ✅ [3] 회원 관련 예외
@@ -163,7 +174,7 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("INVALID_PRODUCT_OPTION", ex.getMessage()));
     }
 
-    // ✅ [6] 상품 옵션 관련 예외 (하나만 유지)
+    // ✅ [6] 상품 옵션 관련 예외
     @ExceptionHandler(ProductOptionNotFoundException.class)
     public ResponseEntity<ApiError> handleProductOptionNotFound(ProductOptionNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -194,23 +205,89 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError("CART_ITEM_NOT_FOUND", ex.getMessage()));
     }
-//user
+
     @ExceptionHandler(InvalidCartItemQuantityException.class)
     public ResponseEntity<ApiError> handleInvalidQuantity(InvalidCartItemQuantityException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiError("INVALID_CART_QUANTITY", ex.getMessage()));
     }
 
+    // ✅ [8] 기타 도메인 예외
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiError> handleDuplicateResource(DuplicateResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiError("DUPLICATE_RESOURCE", ex.getMessage()));
     }
 
+    @ExceptionHandler(WishlistAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleWishlistAlreadyExists(WishlistAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("WISHLIST_ALREADY_EXISTS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(WishlistNotFoundException.class)
+    public ResponseEntity<ApiError> handleWishlistNotFound(WishlistNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("WISHLIST_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleCategoryAlreadyExists(CategoryAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("CATEGORY_ALREADY_EXISTS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ApiError> handleCategoryNotFound(CategoryNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("CATEGORY_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleReviewAlreadyExists(ReviewAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError("REVIEW_ALREADY_EXISTS", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ApiError> handleReviewNotFound(ReviewNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("REVIEW_NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ReviewAccessDeniedException.class)
+    public ResponseEntity<ApiError> handleReviewAccessDenied(ReviewAccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiError("REVIEW_ACCESS_DENIED", ex.getMessage()));
+    }
+
+    // 🔹 @RequestParam, @PathVariable 유효성 실패 (선택)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiError> handleConstraintViolationException(ConstraintViolationException ex) {
+        ApiError apiError = new ApiError("PARAM_VALIDATION_ERROR", ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SpendingGoalNotFoundException.class)
+    public ResponseEntity<ApiError> handleSpendingGoalNotFound(SpendingGoalNotFoundException ex) {
+        ApiError apiError = new ApiError("SPENDING_GOAL_NOT_FOUND", ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DiaryNotFoundException.class)
+    public ResponseEntity<ApiError> handleDiaryNotFoundException(DiaryNotFoundException ex) {
+        ApiError apiError = new ApiError("DIARY_NOT_FOUND", ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BannerNotFoundException.class)
+    public ResponseEntity<ApiError> handleBannerNotFoundException(BannerNotFoundException ex) {
+        ApiError apiError = new ApiError("BANNER_NOT_FOUND", ex.getMessage());
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
+    }
 
 
-
-    // ✅ [8] 기타 예외 (마지막 방어선)
+    // ✅ [9] 기타 예외 (마지막 방어선)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleRuntime(RuntimeException ex) {
         log.error("[서버 오류] {}", ex.getMessage(), ex);

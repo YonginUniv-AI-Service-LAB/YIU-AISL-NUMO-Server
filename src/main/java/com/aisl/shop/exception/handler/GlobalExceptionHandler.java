@@ -17,6 +17,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.aisl.shop.exception.user.DuplicateResourceException;
+import com.aisl.shop.exception.user.UserNotFoundException;
 
 import java.util.stream.Collectors;
 
@@ -192,12 +194,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError("CART_ITEM_NOT_FOUND", ex.getMessage()));
     }
-
+//user
     @ExceptionHandler(InvalidCartItemQuantityException.class)
     public ResponseEntity<ApiError> handleInvalidQuantity(InvalidCartItemQuantityException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiError("INVALID_CART_QUANTITY", ex.getMessage()));
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiError> handleDuplicateResource(DuplicateResourceException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError("DUPLICATE_RESOURCE", ex.getMessage()));
+    }
+
+
+
 
     // ✅ [8] 기타 예외 (마지막 방어선)
     @ExceptionHandler(RuntimeException.class)

@@ -13,6 +13,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,7 +24,7 @@ public class AuthController {
     private final SignupService signupService;
     private final JwtProvider jwtProvider;
 
-    //  로그인 (access + refresh 토큰 발급)
+    // 로그인 (access + refresh 토큰 발급)
     @PostMapping("/token")
     public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         TokenResponse tokenResponse = authService.login(request);
@@ -50,9 +51,7 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-
-
-    //  access token 재발급
+    // access token 재발급
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissueAccessToken(
             @CookieValue(name = "refresh_token", required = false) String refreshToken,
@@ -83,13 +82,23 @@ public class AuthController {
         return ResponseEntity.ok(tokenResponse);
     }
 
-    //  회원가입
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequest request) {
         signupService.signup(request);
         return ResponseEntity.ok().build();
     }
 
+    // 이메일 중복 확인
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmailDuplicate(@RequestParam String email) {
+        boolean isDuplicated = signupService.isEmailDuplicated(email);
+        if (isDuplicated) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "이미 사용 중인 이메일입니다."));
+        }
+        return ResponseEntity.ok(Map.of("message", "사용 가능한 이메일입니다."));
+    }
 
     // 로그아웃
     @PostMapping("/logout")
@@ -113,5 +122,4 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
-
 }

@@ -17,6 +17,7 @@ public class SignupService {
     private final PasswordEncoder passwordEncoder;
     private final EmailAuthService emailAuthService;
 
+    // 회원가입
     public void signup(SignupRequest request) {
         // 1. 이메일 인증 여부 확인
         if (!emailAuthService.isVerified(request.getEmail())) {
@@ -42,5 +43,10 @@ public class SignupService {
 
         // 4. 인증된 이메일 상태 초기화
         emailAuthService.clearVerified(request.getEmail());
+    }
+
+    // 이메일 중복 확인 (중복 확인 API에서 사용됨)
+    public boolean isEmailDuplicated(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

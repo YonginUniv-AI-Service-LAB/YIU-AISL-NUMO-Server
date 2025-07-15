@@ -41,6 +41,7 @@ public class AuthService {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
         }
 
+
         Long userId = user.getId();
         String role = user.getRole().name();
 

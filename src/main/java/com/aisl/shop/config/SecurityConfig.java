@@ -32,19 +32,25 @@ public class SecurityConfig {
                         // ✅ 관리자 전용 경로
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // ✅ 인증 없이 접근 가능한 경로
+                        // ✅ 인증 없이 접근 가능한 경로 (회원가입, 로그인, 이메일 인증, 비번 재설정, 소셜 로그인 등)
                         .requestMatchers(
-                                "/auth/**",
-                                "/products/**",
-                                "/categories/**",
+                                "/auth/token",
+                                "/auth/signup",
+                                "/auth/check-email",
+                                "/auth/reissue",
+                                "/auth/oauth/google",
+                                "/emails/verification-code",
+                                "/emails/verification-code/verify",
+                                "/users/password",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // ✅ 그 외는 인증 필요
+                        // ✅ 나머지 경로는 인증 필요
                         .anyRequest().authenticated()
                 )
+
                 // ✅ JWT 인증 필터 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),

@@ -27,4 +27,12 @@ public class Purchase {
 
     @Column(nullable = false, length = 7)
     private String yearMonth; // "2025-07"
+
+    // ✅ description 필드 추가
+    @Column(length = 255)
+    private String description;
+
+    @Column(length = 10)
+    private String purchaseDate; // "YYYY-MM-DD"
+
 }

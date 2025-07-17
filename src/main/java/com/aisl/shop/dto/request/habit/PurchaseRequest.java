@@ -9,9 +9,6 @@ import lombok.Getter;
 @Getter
 public class PurchaseRequest {
 
-    @NotNull(message = "회원 ID는 필수입니다.")
-    private Long userId;
-
     @NotNull(message = "금액은 필수입니다.")
     @Min(value = 1, message = "금액은 1 이상이어야 합니다.")
     private Integer amount;
@@ -24,4 +21,10 @@ public class PurchaseRequest {
             message = "날짜는 yyyy-MM 형식이어야 합니다."
     )
     private String yearMonth;
+
+    // ✅ description 추가 (선택적으로 입력 가능)
+    private String description;
+
+    // ✅ purchaseDate 필드 추가
+    private String purchaseDate; // 예: "2025-07-17"
 }

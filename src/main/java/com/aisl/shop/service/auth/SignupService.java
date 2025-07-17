@@ -2,6 +2,8 @@ package com.aisl.shop.service.auth;
 
 import com.aisl.shop.dto.request.auth.SignupRequest;
 import com.aisl.shop.entity.User;
+import com.aisl.shop.enums.Role;
+import com.aisl.shop.enums.Provider;
 import com.aisl.shop.exception.auth.EmailAlreadyExistsException;
 import com.aisl.shop.exception.auth.EmailNotVerifiedException;
 import com.aisl.shop.repository.UserRepository;
@@ -35,8 +37,8 @@ public class SignupService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .nickname(request.getNickname())
-                .role(User.Role.USER)
-                .provider(User.Provider.LOCAL)
+                .role(Role.USER)                // ✅ 수정
+                .provider(Provider.LOCAL)       // ✅ 수정
                 .build();
 
         userRepository.save(user);

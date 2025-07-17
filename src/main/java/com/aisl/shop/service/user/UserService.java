@@ -4,6 +4,8 @@ import com.aisl.shop.dto.request.auth.SignupRequest;
 import com.aisl.shop.dto.request.user.UpdateUserRequest;
 import com.aisl.shop.dto.response.user.UserResponse;
 import com.aisl.shop.entity.User;
+import com.aisl.shop.enums.Provider;
+import com.aisl.shop.enums.Role;
 import com.aisl.shop.exception.user.DuplicateResourceException;
 import com.aisl.shop.exception.user.UserNotFoundException;
 import com.aisl.shop.repository.UserRepository;
@@ -35,8 +37,8 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .nickname(request.getNickname())
-                .role(User.Role.USER)
-                .provider(User.Provider.LOCAL)
+                .role(Role.USER)
+                .provider(Provider.LOCAL)
                 .build();
 
         userRepository.save(user);

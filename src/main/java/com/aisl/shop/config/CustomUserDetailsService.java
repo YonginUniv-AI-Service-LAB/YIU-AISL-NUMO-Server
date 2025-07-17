@@ -1,6 +1,7 @@
 package com.aisl.shop.config;
 
 import com.aisl.shop.entity.User;
+import com.aisl.shop.enums.Role; // ✅ 외부 enum import
 import com.aisl.shop.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getRole() == User.Role.ADMIN // 수정된 부분
+                user.getRole() == Role.ADMIN // ✅ 외부 enum 기준 비교
         );
     }
 }

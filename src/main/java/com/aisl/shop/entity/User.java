@@ -1,5 +1,7 @@
 package com.aisl.shop.entity;
 
+import com.aisl.shop.enums.Role;
+import com.aisl.shop.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,7 +30,6 @@ public class User {
     @Column(nullable = false, length = 50)
     private String name;
 
-
     @Column(nullable = false, length = 50)
     private String nickname;
 
@@ -43,16 +44,8 @@ public class User {
     private Provider provider = Provider.LOCAL;
 
     @Column
-    private String providerId; // 소셜 로그인 고유 식별자
+    private String providerId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-    public enum Role {
-        USER, ADMIN
-    }
-
-    public enum Provider {
-        LOCAL, GOOGLE
-    }
 }

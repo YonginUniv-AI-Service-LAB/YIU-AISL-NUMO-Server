@@ -1,10 +1,12 @@
 package com.aisl.shop.service.auth;
 
 import com.aisl.shop.entity.User;
+import com.aisl.shop.enums.Provider;
+import com.aisl.shop.enums.Role;
 import com.aisl.shop.repository.UserRepository;
 import com.aisl.shop.exception.common.ConflictException;
 import com.aisl.shop.exception.common.UnauthorizedException;
-import com.aisl.shop.exception.auth.GoogleLoginException; // ✅ 추가한 예외
+import com.aisl.shop.exception.auth.GoogleLoginException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.util.Utils;
@@ -54,7 +56,7 @@ public class GoogleOAuthService {
             if (userOpt.isPresent()) {
                 User existingUser = userOpt.get();
 
-                if (existingUser.getProvider() != User.Provider.GOOGLE) {
+                if (existingUser.getProvider() != Provider.GOOGLE) {
                     log.warn("이미 다른 방식으로 가입된 이메일: {}", email);
                     throw new ConflictException("이미 다른 방식(일반 회원가입)으로 가입된 이메일입니다.");
                 }
@@ -66,9 +68,9 @@ public class GoogleOAuthService {
             User newUser = User.builder()
                     .email(email)
                     .name(name != null ? name : "GoogleUser")
-                    .provider(User.Provider.GOOGLE)
+                    .provider(Provider.GOOGLE)
                     .providerId(sub)
-                    .role(User.Role.USER)
+                    .role(Role.USER)
                     .nickname("google_" + sub.substring(0, 6))
                     .build();
 

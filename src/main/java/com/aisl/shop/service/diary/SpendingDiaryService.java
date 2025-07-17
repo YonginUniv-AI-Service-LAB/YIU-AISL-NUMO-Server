@@ -22,12 +22,18 @@ public class SpendingDiaryService {
 
     @Transactional
     public DiaryResponse createDiary(Long userId, CreateDiaryRequest request) {
+        String title = request.getTitle();
+        if (title == null || title.trim().isEmpty()) {
+            title = "제목 없음";
+        }
+
         SpendingDiary diary = SpendingDiary.builder()
                 .userId(userId)
                 .diaryDate(request.getDate())
-                .title(request.getTitle())
+                .title(title)
                 .content(request.getContent())
                 .build();
+
         spendingDiaryRepository.save(diary);
         return toResponse(diary);
     }
@@ -38,7 +44,12 @@ public class SpendingDiaryService {
                 .filter(d -> d.getUserId().equals(userId))
                 .orElseThrow(() -> new DiaryNotFoundException("해당 소비일기를 찾을 수 없습니다."));
 
-        diary.setTitle(request.getTitle());
+        String title = request.getTitle();
+        if (title == null || title.trim().isEmpty()) {
+            title = "제목 없음";
+        }
+
+        diary.setTitle(title);
         diary.setContent(request.getContent());
 
         return toResponse(diary);

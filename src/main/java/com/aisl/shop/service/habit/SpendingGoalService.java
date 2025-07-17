@@ -3,9 +3,12 @@ package com.aisl.shop.service.habit;
 import com.aisl.shop.dto.request.habit.SpendingGoalRequest;
 import com.aisl.shop.dto.response.habit.SpendingGoalResponse;
 import com.aisl.shop.entity.SpendingGoal;
+import com.aisl.shop.entity.User;
 import com.aisl.shop.exception.habit.SpendingGoalNotFoundException;
-import com.aisl.shop.repository.SpendingGoalRepository;
+import com.aisl.shop.exception.user.UserNotFoundException;
 import com.aisl.shop.repository.PurchaseRepository;
+import com.aisl.shop.repository.SpendingGoalRepository;
+import com.aisl.shop.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ public class SpendingGoalService {
 
     private final SpendingGoalRepository spendingGoalRepository;
     private final PurchaseRepository purchaseRepository;
+    private final UserRepository userRepository;
 
     /**
      * 소비 목표 생성 또는 수정 (Upsert)
@@ -56,6 +60,9 @@ public class SpendingGoalService {
         SpendingGoal goal = spendingGoalRepository.findByUserIdAndYearMonth(userId, yearMonth)
                 .orElseThrow(() -> new SpendingGoalNotFoundException("해당 월(" + yearMonth + ")의 소비 목표가 존재하지 않습니다."));
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+
         Integer currentSpending = purchaseRepository.sumAmountByUserAndMonth(userId, yearMonth);
         if (currentSpending == null) currentSpending = 0;
 
@@ -79,6 +86,7 @@ public class SpendingGoalService {
         }
 
         return SpendingGoalResponse.builder()
+                .userName(user.getName())  // 🔹 사용자 이름 포함
                 .yearMonth(yearMonth)
                 .targetAmount(goal.getTargetAmount())
                 .currentSpending(currentSpending)

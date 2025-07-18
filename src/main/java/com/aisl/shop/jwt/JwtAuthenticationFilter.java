@@ -2,6 +2,7 @@ package com.aisl.shop.jwt;
 
 import com.aisl.shop.config.CustomUserDetails;
 import com.aisl.shop.config.CustomUserDetailsService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            String token = extractTokenFromHeader(request); // ✅ 변경된 부분
+            String token = extractTokenFromHeader(request);
 
             if (token != null && jwtProvider.isValidToken(token)) {
                 Long userId = jwtProvider.getUserId(token);
@@ -51,6 +52,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
+        } catch (ExpiredJwtException e) {
+            // 🔐 인증 필요 없는 경로인 경우 로그만 출력하고 무시
+            String uri = request.getRequestURI();
+            if (uri.startsWith("/auth") || uri.startsWith("/users")) {
+                log.warn("[JwtAuthenticationFilter] 만료된 토큰이지만 무시 (경로: {}): {}", uri, e.getMessage());
+            } else {
+                log.warn("[JwtAuthenticationFilter] 만료된 토큰: {}", e.getMessage());
+                // 필요 시 response.sendError(HttpServletResponse.SC_UNAUTHORIZED) 가능
+            }
+
         } catch (Exception e) {
             log.warn("[JwtAuthenticationFilter] JWT 인증 실패: {}", e.getMessage());
         }
@@ -60,9 +71,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String extractTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
-
         if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7); // "Bearer " 이후부터 자름
+            return header.substring(7);
         }
         return null;
     }

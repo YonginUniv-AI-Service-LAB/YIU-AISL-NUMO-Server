@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductRequest {
+public class ProductCreateRequest {
 
     @NotBlank(message = "상품명을 입력해주세요.")
     private String name;

@@ -30,4 +30,18 @@ public class SearchController {
         List<SearchResponse> response = searchService.getRecentSearches(userId);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{searchId}")
+    public ResponseEntity<Void> deleteSearch(@PathVariable Long searchId) {
+        searchService.delete(searchId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllSearches(@RequestParam Long userId) {
+        searchService.deleteAllByUserId(userId);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

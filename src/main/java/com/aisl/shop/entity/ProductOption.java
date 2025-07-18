@@ -1,10 +1,12 @@
-package com.aisl.shop.entity;
+package com.aisl.shop.entity; //색상 단위
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product_options")
@@ -19,24 +21,21 @@ public class ProductOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //  N:1 연관관계 설정 (Product 하나에 여러 옵션)
+    // N:1 연관관계 설정 (상품 하나에 여러 색상 옵션)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    // 색상
     @Column(nullable = false, length = 50)
     private String color;
 
-    @Column(nullable = false, length = 20)
-    private String size;
-
-    @Column(nullable = false)
-    private Integer stock;
-
-    @Column(name = "additional_price", nullable = false)
-    private Integer additionalPrice;
+    // 색상마다 여러 사이즈가 존재함
+    @OneToMany(mappedBy = "productOption", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductSize> sizes = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
 }

@@ -6,18 +6,20 @@ import com.aisl.shop.entity.Search;
 import com.aisl.shop.repository.SearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional  // 트랜잭션 처리 추가
 public class SearchService {
 
     private final SearchRepository searchRepository;
 
+    // 🔹 검색어 저장
     public void save(SearchRequest dto) {
-        // JSR-380에서 이미 유효성 검사를 했지만, 추가 방어 로직을 원할 경우 아래 사용
         if (dto.getUserId() == null || dto.getKeyword() == null || dto.getKeyword().trim().isEmpty()) {
             throw new IllegalArgumentException("userId 또는 keyword가 비어있습니다.");
         }
@@ -39,9 +41,20 @@ public class SearchService {
                 );
     }
 
+    // 🔹 최근 검색어 조회
     public List<SearchResponse> getRecentSearches(Long userId) {
         return searchRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(s -> new SearchResponse(s.getKeyword()))
                 .toList();
+    }
+
+    // 🔹 단일 검색어 삭제
+    public void delete(Long searchId) {
+        searchRepository.deleteById(searchId);
+    }
+
+    // 🔹 해당 사용자 검색어 전체 삭제
+    public void deleteAllByUserId(Long userId) {
+        searchRepository.deleteAllByUserId(userId);
     }
 }

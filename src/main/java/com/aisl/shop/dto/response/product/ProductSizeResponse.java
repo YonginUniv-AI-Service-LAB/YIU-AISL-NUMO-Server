@@ -4,14 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Builder
-public class ProductOptionResponse {
+public class ProductSizeResponse {
     private Long id;
-    private Long productId;
-    private String color;
-    private List<ProductSizeResponse> sizes;  // 사이즈 리스트
+    private String size;
     private LocalDateTime createdAt;
 }

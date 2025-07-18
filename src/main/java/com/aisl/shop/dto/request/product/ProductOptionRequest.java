@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,14 +20,17 @@ public class ProductOptionRequest {
     @NotBlank(message = "색상을 입력해주세요.")
     private String color;
 
-    @NotBlank(message = "사이즈를 입력해주세요.")
-    private String size;
+    /**
+     * 사이즈 리스트 예: ["S", "M", "L", "XL"]
+     */
+    @NotNull(message = "사이즈 리스트는 비어 있을 수 없습니다.")
+    private List<String> sizes;
 
-    @NotNull(message = "재고 수량을 입력해주세요.")
-    @Min(value = 0, message = "재고 수량은 0 이상이어야 합니다.")
-    private Integer stock;
-
-    @NotNull(message = "추가 금액을 입력해주세요.")
-    @Min(value = 0, message = "추가 금액은 0 이상이어야 합니다.")
-    private Integer additionalPrice;
+    /**
+     * ❌ getSize()는 존재하지 않습니다.
+     * ✅ 반드시 getSizes()를 사용하세요.
+     *
+     * 예시:
+     * for (String size : request.getSizes()) { ... }
+     */
 }

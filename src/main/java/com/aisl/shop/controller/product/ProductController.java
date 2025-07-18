@@ -1,6 +1,6 @@
 package com.aisl.shop.controller.product;
 
-import com.aisl.shop.dto.response.product.ProductResponse;
+import com.aisl.shop.dto.response.product.ProductCreateResponse;
 import com.aisl.shop.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class ProductController {
      * GET /products?search=키워드
      */
     @GetMapping
-    public List<ProductResponse> getAllProducts(
+    public List<ProductCreateResponse> getAllProducts(
             @RequestParam(value = "search", required = false) String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
@@ -33,7 +33,7 @@ public class ProductController {
      * GET /products/{id}
      */
     @GetMapping("/{id}")
-    public ProductResponse getProduct(@PathVariable Long id) {
+    public ProductCreateResponse getProduct(@PathVariable Long id) {
         return productService.getProduct(id); // ProductNotFoundException 처리됨
     }
 
@@ -42,7 +42,7 @@ public class ProductController {
      * GET /products/category/{categoryId}
      */
     @GetMapping("/category/{categoryId}")
-    public List<ProductResponse> getProductsByCategory(@PathVariable Long categoryId) {
+    public List<ProductCreateResponse> getProductsByCategory(@PathVariable Long categoryId) {
         return productService.getProductsByCategory(categoryId);
     }
 }

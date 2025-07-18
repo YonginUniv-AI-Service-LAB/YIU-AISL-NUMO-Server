@@ -1,7 +1,9 @@
 package com.aisl.shop.service.product;
 
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
+import com.aisl.shop.dto.response.product.ProductSizeResponse;
 import com.aisl.shop.entity.ProductOption;
+import com.aisl.shop.entity.ProductSize;
 import com.aisl.shop.exception.productoption.ProductOptionNotFoundException;
 import com.aisl.shop.repository.ProductOptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,7 @@ public class ProductOptionService {
         List<ProductOption> options = productOptionRepository.findByProduct_Id(productId);
 
         if (options.isEmpty()) {
-            throw new ProductOptionNotFoundException(productId);  // 예외 처리 추가
+            throw new ProductOptionNotFoundException(productId);
         }
 
         return options.stream()
@@ -38,9 +40,16 @@ public class ProductOptionService {
                 .id(option.getId())
                 .productId(option.getProduct().getId())
                 .color(option.getColor())
-                .size(option.getSize())
-                .stock(option.getStock())
+                .sizes(option.getSizes().stream()
+                        .map(this::toSizeDto)
+                        .toList())
                 .createdAt(option.getCreatedAt())
+                .build();
+    }
+
+    private ProductSizeResponse toSizeDto(ProductSize size) {
+        return ProductSizeResponse.builder()
+                .size(size.getSize())
                 .build();
     }
 }

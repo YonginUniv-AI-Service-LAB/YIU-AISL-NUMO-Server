@@ -1,6 +1,6 @@
 package com.aisl.shop.service.product;
 
-import com.aisl.shop.dto.response.product.ProductResponse;
+import com.aisl.shop.dto.response.product.ProductCreateResponse;
 import com.aisl.shop.entity.Product;
 import com.aisl.shop.exception.product.ProductNotFoundException;
 import com.aisl.shop.repository.ProductRepository;
@@ -21,7 +21,7 @@ public class ProductService {
     /**
      * 전체 상품 목록 조회
      */
-    public List<ProductResponse> getAllProducts() {
+    public List<ProductCreateResponse> getAllProducts() {
         return productRepository.findAll().stream()
                 .map(productDtoMapper::toDto)
                 .toList();
@@ -30,7 +30,7 @@ public class ProductService {
     /**
      * 상품 단건 조회
      */
-    public ProductResponse getProduct(Long id) {
+    public ProductCreateResponse getProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
         return productDtoMapper.toDto(product);
@@ -39,7 +39,7 @@ public class ProductService {
     /**
      * 카테고리별 상품 목록 조회
      */
-    public List<ProductResponse> getProductsByCategory(Long categoryId) {
+    public List<ProductCreateResponse> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategory_Id(categoryId).stream()
                 .map(productDtoMapper::toDto)
                 .toList();
@@ -48,7 +48,7 @@ public class ProductService {
     /**
      * 키워드로 상품 검색
      */
-    public List<ProductResponse> searchProducts(String keyword) {
+    public List<ProductCreateResponse> searchProducts(String keyword) {
         return productRepository.findByNameContaining(keyword).stream()
                 .map(productDtoMapper::toDto)
                 .toList();

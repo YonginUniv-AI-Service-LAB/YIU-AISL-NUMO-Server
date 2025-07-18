@@ -17,7 +17,7 @@ public class AdminAuthService {
     private final PasswordEncoder passwordEncoder;
 
     public void signupAsAdmin(SignupRequest request) {
-        if (!request.getEmail().equalsIgnoreCase("admin@aisl.shop")) {
+        if (!request.getEmail().equalsIgnoreCase("ybk6964@naver.com")) {
             throw new IllegalArgumentException("관리자 계정은 허용된 이메일로만 생성할 수 있습니다.");
         }
 

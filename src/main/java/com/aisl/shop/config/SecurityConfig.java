@@ -12,7 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.*;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
@@ -29,29 +31,22 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 관리자 전용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // 인증 없이 허용되는 경로
                         .requestMatchers(
-                                "/test",
-                                "/",
-                                "/auth/token",
-                                "/auth/signup",
-                                "/auth/check-email",
-                                "/auth/reissue",
+                                "/", "/test", "/category/**",
+                                "/search/**",
+                                "/products/**",        // 상품 및 옵션 전체 경로 접근 허용 추가
+                                "/auth/token", "/auth/signup", "/auth/check-email", "/auth/reissue", "/auth/**",
                                 "/auth/oauth/google",
-                                "/emails/verification-code",
-                                "/emails/verification-code/verify",
+                                "/auth/admin/signup",
+                                "/emails/verification-code", "/emails/verification-code/verify",
                                 "/users/password",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
                         ).permitAll()
-
-                        // 그 외 인증 필요
                         .anyRequest().authenticated()
                 )
+
+
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),
                         UsernamePasswordAuthenticationFilter.class
@@ -64,21 +59,20 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // 보안상 allowedOrigins보단 allowedOriginPatterns 권장
-        config.setAllowedOriginPatterns(List.of(
+        config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://*.ngrok-free.app"  // ngrok 도메인 전체 허용
+                "https://de2dea8c91b1.ngrok-free.app"  // 명시적으로 작성
         ));
-
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
-        config.setAllowedHeaders(List.of("*", "X-Requested-With"));
-        config.setExposedHeaders(List.of("Authorization")); // ✅ 토큰 헤더 노출
-        config.setAllowCredentials(true); // ✅ 쿠키 인증 허용
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*", "X-Requested-With", "Authorization", "Content-Type"));
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowCredentials(true);  // 이 옵션 때문에 allowedOrigins만 허용됨
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

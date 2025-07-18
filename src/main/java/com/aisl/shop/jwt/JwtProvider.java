@@ -3,6 +3,7 @@ package com.aisl.shop.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtProvider {
 
@@ -18,7 +20,7 @@ public class JwtProvider {
 
     private Key signingKey;
 
-    private final long accessTokenExpiration = 1000L * 60 * 60;        // 1시간
+    private final long accessTokenExpiration = 1000L * 60 * 60;            // 1시간
     private final long refreshTokenExpiration = 1000L * 60 * 60 * 24 * 14; // 14일
 
     @PostConstruct
@@ -26,11 +28,10 @@ public class JwtProvider {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 사용자 ID만으로 생성 (기본 USER 권한)
+    // ✅ Access Token 생성 (userId만)
     public String generateAccessToken(Long userId) {
         return generateAccessToken(userId, "USER");
     }
-
 
     // ✅ Access Token 생성 (userId + role)
     public String generateAccessToken(Long userId, String role) {
@@ -58,7 +59,7 @@ public class JwtProvider {
         try {
             return Long.parseLong(extractAllClaims(token).getSubject());
         } catch (Exception e) {
-            System.out.println("[JwtProvider] userId 추출 실패: " + e.getMessage());
+            log.warn("[JwtProvider] userId 추출 실패: {}", e.getMessage());
             return null;
         }
     }
@@ -68,7 +69,7 @@ public class JwtProvider {
         try {
             return extractAllClaims(token).get("role", String.class);
         } catch (Exception e) {
-            System.out.println("[JwtProvider] role 추출 실패: " + e.getMessage());
+            log.warn("[JwtProvider] role 추출 실패: {}", e.getMessage());
             return null;
         }
     }
@@ -78,18 +79,21 @@ public class JwtProvider {
         try {
             return extractAllClaims(token).getSubject();
         } catch (Exception e) {
-            System.out.println("[JwtProvider] email 추출 실패: " + e.getMessage());
+            log.warn("[JwtProvider] email 추출 실패: {}", e.getMessage());
             return null;
         }
     }
 
-    // ✅ 유효성 검사
+    // ✅ 유효성 검사 (만료된 토큰 포함하여 false 반환)
     public boolean isValidToken(String token) {
         try {
             extractAllClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("[JwtProvider] 만료된 토큰: {}", e.getMessage());
+            return false;
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("[JwtProvider] 유효하지 않은 토큰: " + e.getMessage());
+            log.warn("[JwtProvider] 유효하지 않은 토큰: {}", e.getMessage());
             return false;
         }
     }

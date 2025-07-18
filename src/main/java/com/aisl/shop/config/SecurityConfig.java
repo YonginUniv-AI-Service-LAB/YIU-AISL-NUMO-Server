@@ -29,11 +29,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 관리자 전용 경로
+                        // 관리자 전용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
-                        // ✅ 인증 없이 접근 가능한 경로 (회원가입, 로그인, 이메일 인증, 비번 재설정, 소셜 로그인 등)
+                        // 인증 없이 허용되는 경로
                         .requestMatchers(
+                                "/test",
+                                "/",
                                 "/auth/token",
                                 "/auth/signup",
                                 "/auth/check-email",
@@ -47,11 +49,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // ✅ 나머지 경로는 인증 필요
+                        // 그 외 인증 필요
                         .anyRequest().authenticated()
                 )
-
-                // ✅ JWT 인증 필터 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),
                         UsernamePasswordAuthenticationFilter.class
@@ -64,10 +64,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // ⚠️ 프론트 주소
+        // 보안상 allowedOrigins보단 allowedOriginPatterns 권장
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "https://*.ngrok-free.app"  // ngrok 도메인 전체 허용
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // ✅ 쿠키 전송 허용
+        config.setAllowedHeaders(List.of("*", "X-Requested-With"));
+        config.setExposedHeaders(List.of("Authorization")); // ✅ 토큰 헤더 노출
+        config.setAllowCredentials(true); // ✅ 쿠키 인증 허용
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

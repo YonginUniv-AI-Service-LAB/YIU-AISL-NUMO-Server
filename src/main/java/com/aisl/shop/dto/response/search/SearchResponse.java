@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SearchResponse {
+    private Long id;
     private String keyword;
 }
-

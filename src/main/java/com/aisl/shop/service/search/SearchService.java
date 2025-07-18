@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional  // 트랜잭션 처리 추가
+@Transactional
 public class SearchService {
 
     private final SearchRepository searchRepository;
@@ -41,10 +41,10 @@ public class SearchService {
                 );
     }
 
-    // 🔹 최근 검색어 조회
+    // 🔹 최근 검색어 조회 (id, keyword 모두 포함)
     public List<SearchResponse> getRecentSearches(Long userId) {
         return searchRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(s -> new SearchResponse(s.getKeyword()))
+                .map(s -> new SearchResponse(s.getId(), s.getKeyword()))
                 .toList();
     }
 

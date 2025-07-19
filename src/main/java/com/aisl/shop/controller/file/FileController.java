@@ -35,8 +35,10 @@ public class FileController {
             Files.write(filePath, file.getBytes());
 
             // 접근 가능한 URL 반환
-            String fileUrl = "http://localhost:8080/images/" + filename;
+            String fileUrl = "https://your-grok-subdomain.grok.app/images/" + filename;
             return ResponseEntity.ok(fileUrl);
+
+
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

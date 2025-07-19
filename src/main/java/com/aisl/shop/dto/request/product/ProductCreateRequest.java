@@ -1,10 +1,9 @@
 package com.aisl.shop.dto.request.product;
 
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import jakarta.validation.constraints.*;
 import java.util.List;
 
 @Getter
@@ -43,6 +42,9 @@ public class ProductCreateRequest {
     @NotEmpty(message = "상품 이미지를 하나 이상 등록해주세요.")
     private List<@NotBlank(message = "이미지 URL을 비워둘 수 없습니다.") String> imageUrls;
 
-    @NotEmpty(message = "옵션은 하나 이상 등록되어야 합니다.")
-    private List<@Valid ProductOptionRequest> options;
+    @NotEmpty(message = "색상을 하나 이상 입력해주세요.")
+    private List<@NotBlank(message = "색상은 비워둘 수 없습니다.") String> colors;
+
+    @NotEmpty(message = "사이즈를 하나 이상 입력해주세요.")
+    private List<@NotBlank(message = "사이즈는 비워둘 수 없습니다.") String> sizes;
 }

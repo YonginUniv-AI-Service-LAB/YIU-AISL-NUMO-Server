@@ -1,7 +1,6 @@
 package com.aisl.shop.service.admin;
 
 import com.aisl.shop.dto.request.product.ProductCreateRequest;
-import com.aisl.shop.dto.request.product.ProductOptionRequest;
 import com.aisl.shop.dto.response.product.ProductCreateResponse;
 import com.aisl.shop.dto.response.product.ProductOptionResponse;
 import com.aisl.shop.dto.response.product.ProductSizeResponse;
@@ -48,14 +47,15 @@ public class AdminProductService {
                 .options(new ArrayList<>())
                 .build();
 
-        for (ProductOptionRequest optReq : request.getOptions()) {
+        // ✅ 색상 × 사이즈 조합으로 옵션 생성
+        for (String color : request.getColors()) {
             ProductOption option = ProductOption.builder()
-                    .color(optReq.getColor())
+                    .color(color)
                     .product(product)
                     .sizes(new ArrayList<>())
                     .build();
 
-            for (String sizeStr : optReq.getSizes()) {
+            for (String sizeStr : request.getSizes()) {
                 ProductSize size = ProductSize.builder()
                         .size(sizeStr)
                         .productOption(option)
@@ -92,16 +92,17 @@ public class AdminProductService {
         product.setKeywords(request.getKeywords());
         product.setImageUrls(request.getImageUrls());
 
+        // 기존 옵션 초기화
         product.getOptions().clear();
 
-        for (ProductOptionRequest optReq : request.getOptions()) {
+        for (String color : request.getColors()) {
             ProductOption option = ProductOption.builder()
-                    .color(optReq.getColor())
+                    .color(color)
                     .product(product)
                     .sizes(new ArrayList<>())
                     .build();
 
-            for (String sizeStr : optReq.getSizes()) {
+            for (String sizeStr : request.getSizes()) {
                 ProductSize size = ProductSize.builder()
                         .size(sizeStr)
                         .productOption(option)

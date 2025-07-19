@@ -1,8 +1,8 @@
 package com.aisl.shop.entity;
 
-import com.aisl.shop.enums.ColorOpinion;
-import com.aisl.shop.enums.QualityOpinion;
-import com.aisl.shop.enums.SizeOpinion;
+import com.aisl.shop.enums.review.ColorOpinion;
+import com.aisl.shop.enums.review.QualityOpinion;
+import com.aisl.shop.enums.review.SizeOpinion;
 import jakarta.persistence.*;
 import lombok.*;
 

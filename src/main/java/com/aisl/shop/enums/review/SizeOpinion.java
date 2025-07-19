@@ -1,4 +1,4 @@
-package com.aisl.shop.enums;
+package com.aisl.shop.enums.review; // 리뷰에서 쓰는 사이즈
 
 import lombok.Getter;
 

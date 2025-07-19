@@ -1,4 +1,4 @@
-package com.aisl.shop.enums;
+package com.aisl.shop.enums.review; // ㄹ
 
 import lombok.Getter;
 

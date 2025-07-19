@@ -47,7 +47,8 @@ public class AdminProductService {
                 .options(new ArrayList<>())
                 .build();
 
-        // ✅ 색상 × 사이즈 조합으로 옵션 생성
+        List<ProductOption> optionList = new ArrayList<>();
+
         for (String color : request.getColors()) {
             ProductOption option = ProductOption.builder()
                     .color(color)
@@ -58,13 +59,15 @@ public class AdminProductService {
             for (String sizeStr : request.getSizes()) {
                 ProductSize size = ProductSize.builder()
                         .size(sizeStr)
-                        .productOption(option)
+                        .productOption(option) // ✅ 연관관계 설정!
                         .build();
-                option.getSizes().add(size);
+                option.getSizes().add(size); // ✅ 리스트에 추가
             }
 
-            product.getOptions().add(option);
+            optionList.add(option);
         }
+
+        product.addOptions(optionList); // ✅ 양방향 관계 유지 및 추가
 
         Product savedProduct = productRepository.save(product);
         return toResponse(savedProduct);
@@ -92,8 +95,9 @@ public class AdminProductService {
         product.setKeywords(request.getKeywords());
         product.setImageUrls(request.getImageUrls());
 
-        // 기존 옵션 초기화
-        product.getOptions().clear();
+        product.clearOptions();
+
+        List<ProductOption> optionList = new ArrayList<>();
 
         for (String color : request.getColors()) {
             ProductOption option = ProductOption.builder()
@@ -105,13 +109,15 @@ public class AdminProductService {
             for (String sizeStr : request.getSizes()) {
                 ProductSize size = ProductSize.builder()
                         .size(sizeStr)
-                        .productOption(option)
+                        .productOption(option) // ✅ 연관관계 설정!
                         .build();
-                option.getSizes().add(size);
+                option.getSizes().add(size); // ✅ 리스트에 추가
             }
 
-            product.getOptions().add(option);
+            optionList.add(option);
         }
+
+        product.addOptions(optionList);
 
         Product updatedProduct = productRepository.save(product);
         return toResponse(updatedProduct);

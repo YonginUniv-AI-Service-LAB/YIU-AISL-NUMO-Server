@@ -46,8 +46,8 @@ public class Product {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,16 +61,14 @@ public class Product {
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    private List<String> imageUrls;
+    private List<String> imageUrls = new ArrayList<>();
 
-    // ✅ 옵션 전체 초기화
     public void clearOptions() {
         this.options.clear();
     }
 
-    // ✅ 옵션 전체 추가
     public void addOptions(List<ProductOption> options) {
         this.options.addAll(options);
-        options.forEach(option -> option.setProduct(this));  // 양방향 연관관계 유지
+        options.forEach(option -> option.setProduct(this));
     }
 }

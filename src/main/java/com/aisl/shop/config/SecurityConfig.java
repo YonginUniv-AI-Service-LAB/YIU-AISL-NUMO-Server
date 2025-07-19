@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/auth/admin/signup",
                                 "/emails/verification-code", "/emails/verification-code/verify",
                                 "/users/password",
-                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**"
+                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+                                        "/images/**","/upload/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

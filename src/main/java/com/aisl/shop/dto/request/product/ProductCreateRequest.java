@@ -37,17 +37,14 @@ public class ProductCreateRequest {
     private Integer discountPrice;
 
     @Size(min = 1, message = "색상을 하나 이상 입력해주세요.")
-    private List<@Pattern(regexp = "^(?!\\s*$).+", message = "색상은 공백일 수 없습니다.") String> colors;
+    private List<@NotBlank String> colors;
 
     @Size(min = 1, message = "사이즈를 하나 이상 입력해주세요.")
-    private List<@Pattern(regexp = "^(?!\\s*$).+", message = "사이즈는 공백일 수 없습니다.") String> sizes;
+    private List<@NotBlank String> sizes;
 
     @Size(min = 1, message = "키워드를 하나 이상 입력해주세요.")
-    private List<@Pattern(regexp = "^(?!\\s*$).+", message = "키워드는 공백일 수 없습니다.") String> keywords;
+    private List<@NotBlank String> keywords;
 
     @Size(min = 1, message = "이미지를 하나 이상 등록해주세요.")
-    private List<@Pattern(regexp = "^(?!\\s*$).+", message = "이미지 URL은 공백일 수 없습니다.") String> imageUrls;
+    private List<@NotBlank String> imageUrls;
 }
-
-
-

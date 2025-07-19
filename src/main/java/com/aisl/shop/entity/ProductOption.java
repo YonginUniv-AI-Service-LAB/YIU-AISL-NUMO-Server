@@ -1,4 +1,4 @@
-package com.aisl.shop.entity; //색상 단위
+package com.aisl.shop.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,4 +38,13 @@ public class ProductOption {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    // ✅ 연관관계 편의 메서드 추가
+    public void addSize(ProductSize size) {
+        sizes.add(size);
+        size.setProductOption(this);
+    }
+
+    public void addSizes(List<ProductSize> sizes) {
+        sizes.forEach(this::addSize); // 반복해서 추가
+    }
 }

@@ -50,24 +50,28 @@ public class AdminProductService {
         List<ProductOption> optionList = new ArrayList<>();
 
         for (String color : request.getColors()) {
+            if (color == null || color.trim().isEmpty()) continue;
+
             ProductOption option = ProductOption.builder()
-                    .color(color)
+                    .color(color.trim())
                     .product(product)
                     .sizes(new ArrayList<>())
                     .build();
 
             for (String sizeStr : request.getSizes()) {
+                if (sizeStr == null || sizeStr.trim().isEmpty()) continue;
+
                 ProductSize size = ProductSize.builder()
-                        .size(sizeStr)
-                        .productOption(option) // ✅ 연관관계 설정!
+                        .size(sizeStr.trim())
+                        .productOption(option)
                         .build();
-                option.getSizes().add(size); // ✅ 리스트에 추가
+                option.getSizes().add(size);
             }
 
             optionList.add(option);
         }
 
-        product.addOptions(optionList); // ✅ 양방향 관계 유지 및 추가
+        product.addOptions(optionList);
 
         Product savedProduct = productRepository.save(product);
         return toResponse(savedProduct);
@@ -100,18 +104,22 @@ public class AdminProductService {
         List<ProductOption> optionList = new ArrayList<>();
 
         for (String color : request.getColors()) {
+            if (color == null || color.trim().isEmpty()) continue;
+
             ProductOption option = ProductOption.builder()
-                    .color(color)
+                    .color(color.trim())
                     .product(product)
                     .sizes(new ArrayList<>())
                     .build();
 
             for (String sizeStr : request.getSizes()) {
+                if (sizeStr == null || sizeStr.trim().isEmpty()) continue;
+
                 ProductSize size = ProductSize.builder()
-                        .size(sizeStr)
-                        .productOption(option) // ✅ 연관관계 설정!
+                        .size(sizeStr.trim())
+                        .productOption(option)
                         .build();
-                option.getSizes().add(size); // ✅ 리스트에 추가
+                option.getSizes().add(size);
             }
 
             optionList.add(option);

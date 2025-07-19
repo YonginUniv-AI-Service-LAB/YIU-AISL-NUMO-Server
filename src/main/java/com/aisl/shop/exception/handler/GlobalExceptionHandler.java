@@ -299,20 +299,4 @@ public class GlobalExceptionHandler {
     }
 
 
-    /**
-     * ✅ @RequestParam, @PathVariable 등의 제약 조건 실패 처리
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    /**
-     * ✅ 그 외 예외 처리
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception ex) {
-        ex.printStackTrace();  // 콘솔 로그 확인용
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류가 발생했습니다.");
-    }
 }

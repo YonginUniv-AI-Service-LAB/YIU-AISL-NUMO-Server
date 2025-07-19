@@ -37,8 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && jwtProvider.isValidToken(token)) {
                 Long userId = jwtProvider.getUserId(token);
                 if (userId != null) {
-                    CustomUserDetails userDetails =
-                            (CustomUserDetails) userDetailsService.loadUserByUsername(String.valueOf(userId));
+                    CustomUserDetails userDetails = userDetailsService.loadUserById(userId); // ✅ 수정
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
@@ -53,13 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException e) {
-            // 🔐 인증 필요 없는 경로인 경우 로그만 출력하고 무시
             String uri = request.getRequestURI();
             if (uri.startsWith("/auth") || uri.startsWith("/users")) {
                 log.warn("[JwtAuthenticationFilter] 만료된 토큰이지만 무시 (경로: {}): {}", uri, e.getMessage());
             } else {
                 log.warn("[JwtAuthenticationFilter] 만료된 토큰: {}", e.getMessage());
-                // 필요 시 response.sendError(HttpServletResponse.SC_UNAUTHORIZED) 가능
             }
 
         } catch (Exception e) {

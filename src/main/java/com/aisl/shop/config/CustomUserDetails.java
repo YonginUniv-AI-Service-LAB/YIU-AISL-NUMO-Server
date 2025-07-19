@@ -22,14 +22,21 @@ public class CustomUserDetails implements UserDetails {
         this.isAdmin = isAdmin;
     }
 
+    /**
+     * ✅ ROLE 설정 (ROLE_USER 또는 ROLE_ADMIN)
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> isAdmin ? "ROLE_ADMIN" : "ROLE_USER");
+        String role = isAdmin ? "ROLE_ADMIN" : "ROLE_USER";
+        return List.of(() -> role);
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     @Override public String getPassword() { return password; }
-
-    @Override public String getUsername() { return email; }
 
     @Override public boolean isAccountNonExpired() { return true; }
 

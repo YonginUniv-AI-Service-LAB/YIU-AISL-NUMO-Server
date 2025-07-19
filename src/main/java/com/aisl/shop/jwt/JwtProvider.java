@@ -28,15 +28,10 @@ public class JwtProvider {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // ✅ Access Token 생성 (userId만)
-    public String generateAccessToken(Long userId) {
-        return generateAccessToken(userId, "USER");
-    }
-
     // ✅ Access Token 생성 (userId + role)
     public String generateAccessToken(Long userId, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(userId)) // userId를 subject에 저장
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
@@ -47,7 +42,7 @@ public class JwtProvider {
     // ✅ Refresh Token 생성 (email 기반)
     public String generateRefreshToken(String email) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(email) // 이메일은 refresh token에서만 사용
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
@@ -74,7 +69,7 @@ public class JwtProvider {
         }
     }
 
-    // ✅ Refresh Token에서 email 꺼내기
+    // ✅ Refresh Token에서 email 추출
     public String getEmail(String token) {
         try {
             return extractAllClaims(token).getSubject();
@@ -84,7 +79,7 @@ public class JwtProvider {
         }
     }
 
-    // ✅ 유효성 검사 (만료된 토큰 포함하여 false 반환)
+    // ✅ 유효성 검사
     public boolean isValidToken(String token) {
         try {
             extractAllClaims(token);
@@ -98,7 +93,7 @@ public class JwtProvider {
         }
     }
 
-    // ✅ 내부 Claims 추출 (공통)
+    // ✅ 내부 Claims 추출
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(signingKey)

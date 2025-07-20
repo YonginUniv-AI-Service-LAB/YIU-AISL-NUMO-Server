@@ -42,7 +42,7 @@ public class SecurityConfig {
                                 "/emails/verification-code", "/emails/verification-code/verify",
                                 "/users/password",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                        "/images/**","/upload/**"
+                                        "/images/**","/upload/**","/favicon.ico"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -62,7 +62,7 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://de2dea8c91b1.ngrok-free.app"  // 명시적으로 작성
+                "https://44284814efff.ngrok-free.app"  // 명시적으로 작성
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*", "X-Requested-With", "Authorization", "Content-Type"));

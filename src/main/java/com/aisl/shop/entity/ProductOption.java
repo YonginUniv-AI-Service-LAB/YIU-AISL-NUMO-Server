@@ -1,6 +1,7 @@
 package com.aisl.shop.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,11 +31,12 @@ public class ProductOption {
     @Column(nullable = false, length = 50)
     private String color;
 
-    // 💰 옵션 단위 가격 (추가)
+    // 💰 프론트에서 전달된 단가를 그대로 저장
     @Column(nullable = false)
     private int price;
 
     @OneToMany(mappedBy = "productOption", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ProductSize> sizes = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)

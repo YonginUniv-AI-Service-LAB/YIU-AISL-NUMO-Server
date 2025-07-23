@@ -39,6 +39,8 @@ public class CartitemService {
             CartItem newItem = new CartItem();
             newItem.setUserId(userId);
             newItem.setProductId(request.getProductId());
+            newItem.setBrandName(request.getBrandName());
+            newItem.setProductName(request.getProductName());
             newItem.setColor(request.getColor());
             newItem.setSize(request.getSize());
             newItem.setQuantity(request.getQuantity());
@@ -56,7 +58,7 @@ public class CartitemService {
     }
 
     /**
-     * ✅ 장바구니 항목 수정 (옵션 + 수량 변경)
+     * ✅ 장바구니 항목 수정 (옵션 + 수량 + 브랜드/상품명 변경)
      */
     public CartItemResponse updateCartItem(Long cartItemId, CartItemRequest request) {
         if (request.getQuantity() < 1) {
@@ -67,6 +69,8 @@ public class CartitemService {
                 .orElseThrow(() -> new CartItemNotFoundException(cartItemId));
 
         item.setProductId(request.getProductId());
+        item.setBrandName(request.getBrandName());
+        item.setProductName(request.getProductName());
         item.setColor(request.getColor());
         item.setSize(request.getSize());
         item.setQuantity(request.getQuantity());
@@ -99,6 +103,8 @@ public class CartitemService {
                 .id(item.getId())
                 .userId(item.getUserId())
                 .productId(item.getProductId())
+                .brandName(item.getBrandName())
+                .productName(item.getProductName())
                 .color(item.getColor())
                 .size(item.getSize())
                 .quantity(item.getQuantity())

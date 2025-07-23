@@ -21,6 +21,15 @@ public class CartItemController {
 
     /**
      * ✅ 장바구니 항목 추가
+     * 요청 예시:
+     * {
+     *   "productId": 1,
+     *   "brandName": "Nike",
+     *   "productName": "Air Max 97",
+     *   "color": "White",
+     *   "size": "270",
+     *   "quantity": 2
+     * }
      */
     @PostMapping
     public CartItemResponse addToCart(@RequestBody @Valid CartItemRequest request) {

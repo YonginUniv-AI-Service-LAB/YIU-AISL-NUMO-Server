@@ -12,6 +12,12 @@ public class CartItemRequest {
     @NotNull(message = "상품 ID는 필수입니다.")
     private Long productId;
 
+    @NotBlank(message = "브랜드명을 입력해주세요.")
+    private String brandName;
+
+    @NotBlank(message = "상품명을 입력해주세요.")
+    private String productName;
+
     @NotBlank(message = "색상을 선택해주세요.")
     private String color;
 

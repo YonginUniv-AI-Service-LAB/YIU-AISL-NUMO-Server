@@ -20,6 +20,12 @@ public class CartItem {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "product_name", nullable = false)
+    private String productName;
+
+    @Column(name = "brand_name", nullable = false)
+    private String brandName;
+
     @Column(name = "product_id", nullable = false)
     private Long productId;
 

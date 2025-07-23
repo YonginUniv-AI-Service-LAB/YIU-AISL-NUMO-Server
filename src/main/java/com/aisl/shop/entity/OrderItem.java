@@ -28,10 +28,10 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private Integer unitPrice;
+    private Integer unitPrice; //단가
 
     @Column(nullable = false)
-    private Integer totalPrice;
+    private Integer totalPrice; //총 합
 
     // ✅ 상태 필드 추가
     @Enumerated(EnumType.STRING)

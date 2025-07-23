@@ -8,16 +8,19 @@ import com.aisl.shop.entity.Order;
 import com.aisl.shop.entity.Order.OrderStatus;
 import com.aisl.shop.entity.Order.PaymentMethod;
 import com.aisl.shop.entity.OrderItem;
+import com.aisl.shop.entity.ProductOption;
 import com.aisl.shop.enums.OrderItemStatus;
 import com.aisl.shop.exception.order.*;
 import com.aisl.shop.repository.OrderRepository;
 import com.aisl.shop.repository.OrderItemRepository;
+import com.aisl.shop.repository.ProductOptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +31,10 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ProductOptionRepository productOptionRepository;
 
     // 🔹 주문 생성
     public Long createOrder(OrderCreateRequest request) {
-        int totalPrice = request.getItems().stream()
-                .mapToInt(item -> item.getQuantity() * 34110)
-                .sum();
-
         PaymentMethod paymentMethod;
         try {
             paymentMethod = PaymentMethod.valueOf(request.getPaymentMethod());
@@ -49,23 +49,36 @@ public class OrderService {
                 .phone(request.getPhone())
                 .address(request.getAddress())
                 .paymentMethod(paymentMethod)
-                .totalPrice(totalPrice)
+                .totalPrice(0) // 임시
                 .status(OrderStatus.PENDING)
                 .build();
 
-        List<OrderItem> items = request.getItems().stream()
-                .map(dto -> OrderItem.builder()
-                        .order(order)
-                        .productId(dto.getProductId())
-                        .optionId(dto.getOptionId())
-                        .quantity(dto.getQuantity())
-                        .unitPrice(34110)
-                        .totalPrice(dto.getQuantity() * 34110)
-                        .status(OrderItemStatus.PAID)
-                        .build()
-                ).collect(Collectors.toList());
+        int totalPrice = 0;
+        List<OrderItem> items = new ArrayList<>();
+
+        for (var dto : request.getItems()) {
+            ProductOption option = productOptionRepository.findById(dto.getOptionId())
+                    .orElseThrow(() -> new RuntimeException("해당 옵션을 찾을 수 없습니다."));
+
+            int unitPrice = option.getPrice();
+            int itemTotal = unitPrice * dto.getQuantity();
+            totalPrice += itemTotal;
+
+            OrderItem item = OrderItem.builder()
+                    .order(order)
+                    .productId(dto.getProductId())
+                    .optionId(dto.getOptionId())
+                    .quantity(dto.getQuantity())
+                    .unitPrice(unitPrice)
+                    .totalPrice(itemTotal)
+                    .status(OrderItemStatus.PAID)
+                    .build();
+
+            items.add(item);
+        }
 
         order.setItems(items);
+        order.setTotalPrice(totalPrice);
         orderRepository.save(order);
         return order.getId();
     }
@@ -80,7 +93,6 @@ public class OrderService {
                 .build()).collect(Collectors.toList());
     }
 
-    // 🔧 수정된 부분
     public List<OrderListItemResponse> getFilteredOrderList(Long userId, String status, LocalDate startDate, LocalDate endDate) {
         OrderStatus enumStatus = null;
         if (status != null) {

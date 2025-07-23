@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,7 @@ public class OrderService {
                 .build()).collect(Collectors.toList());
     }
 
+    // 🔧 수정된 부분
     public List<OrderListItemResponse> getFilteredOrderList(Long userId, String status, LocalDate startDate, LocalDate endDate) {
         OrderStatus enumStatus = null;
         if (status != null) {
@@ -89,7 +91,10 @@ public class OrderService {
             }
         }
 
-        List<Order> orders = orderRepository.findByFilters(userId, enumStatus, startDate, endDate);
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = (endDate != null) ? endDate.plusDays(1).atStartOfDay().minusNanos(1) : null;
+
+        List<Order> orders = orderRepository.findByFilters(userId, enumStatus, startDateTime, endDateTime);
         return orders.stream().map(order -> OrderListItemResponse.builder()
                 .orderId(order.getId())
                 .status(order.getStatus())

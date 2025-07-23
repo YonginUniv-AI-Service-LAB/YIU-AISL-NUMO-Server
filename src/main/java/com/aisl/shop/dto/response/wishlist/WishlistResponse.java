@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class WishlistResponseDto {
+public class WishlistResponse {
     private Long id;
     private Long productId;
     private LocalDateTime createdAt;

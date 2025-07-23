@@ -31,13 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+
         try {
             String token = extractTokenFromHeader(request);
 
             if (token != null && jwtProvider.isValidToken(token)) {
                 Long userId = jwtProvider.getUserId(token);
                 if (userId != null) {
-                    CustomUserDetails userDetails = userDetailsService.loadUserById(userId); // ✅ 수정
+                    CustomUserDetails userDetails = userDetailsService.loadUserById(userId);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
@@ -52,12 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException e) {
-            String uri = request.getRequestURI();
-            if (uri.startsWith("/auth") || uri.startsWith("/users")) {
-                log.warn("[JwtAuthenticationFilter] 만료된 토큰이지만 무시 (경로: {}): {}", uri, e.getMessage());
-            } else {
-                log.warn("[JwtAuthenticationFilter] 만료된 토큰: {}", e.getMessage());
-            }
+            log.warn("[JwtAuthenticationFilter] 만료된 토큰: {}", e.getMessage());
 
         } catch (Exception e) {
             log.warn("[JwtAuthenticationFilter] JWT 인증 실패: {}", e.getMessage());
@@ -66,10 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Authorization 헤더에서 Bearer 토큰 추출
+     */
     private String extractTokenFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
+            return header.substring(7); // "Bearer " 이후 토큰만 추출
         }
         return null;
     }

@@ -28,9 +28,9 @@ public class Category {
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    // 코드 (1~5)
-    @Column(name = "category_code", nullable = false)
-    private int categoryCode;
+    // categoryCode: TOP, BOTTOM, OUTER ...
+    @Column(name = "category_code", nullable = false, length = 50)
+    private String categoryCode;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
@@ -39,12 +39,13 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
 
+    // ENUM → Entity에 반영
     public void setCategoryType(CategoryType type) {
-        this.categoryCode = type.getCode();
-        this.name = type.getLabel();
+        this.categoryCode = type.getCode();   // 예: "TOP"
+        this.name = type.getLabel();          // 예: "상의"
     }
 
     public CategoryType getCategoryType() {
-        return CategoryType.fromCode(this.categoryCode);
+        return CategoryType.fromCode(this.categoryCode); // 예: CategoryType.TOP
     }
 }

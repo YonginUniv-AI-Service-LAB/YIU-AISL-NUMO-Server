@@ -130,7 +130,7 @@ public class CartitemService {
                 .color(item.getColor())
                 .size(item.getSize())
                 .quantity(item.getQuantity())
-                .price(item.getUnitPrice())
+                .unitprice(item.getUnitPrice())
                 .totalPrice(item.getTotalPrice())
                 .createdAt(item.getCreatedAt())
                 .build();

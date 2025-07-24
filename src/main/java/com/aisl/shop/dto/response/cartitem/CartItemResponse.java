@@ -16,8 +16,9 @@ public class CartItemResponse {
     private String productName;
     private String brandName;
     private String thumbnailUrl;
-    private Integer price;         // 단가 (옵션 기준 가격)
+
     private Integer quantity;
+    private Integer unitprice;         // 단가 (옵션 기준 가격)
     private Integer totalPrice;    // 단가 * 수량
     private String color;
     private String size;

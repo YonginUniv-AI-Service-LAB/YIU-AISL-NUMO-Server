@@ -43,7 +43,7 @@ public class SecurityConfig {
                                 "/users/password",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                         "/images/**","/upload/**","/favicon.ico","/orders/**", "/wishlist/**", "/reviews/**",
-                                "/habits/**", "/diaries/**"
+                                "/habits/**", "/diaries/**", "/cart/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

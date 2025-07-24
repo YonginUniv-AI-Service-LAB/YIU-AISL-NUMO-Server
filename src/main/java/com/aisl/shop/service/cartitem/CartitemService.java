@@ -79,10 +79,13 @@ public class CartitemService {
             throw new InvalidCartItemQuantityException(request.getQuantity());
         }
 
+        // 상품 가격 계산
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
-        int unitPrice = product.getPrice();
+        int originalPrice = product.getPrice();
+        int discountPrice = product.getDiscountPrice() != null ? product.getDiscountPrice() : 0;
+        int unitPrice = originalPrice - discountPrice;
         int totalPrice = unitPrice * request.getQuantity();
 
         CartItem item = cartItemRepository.findById(cartItemId)

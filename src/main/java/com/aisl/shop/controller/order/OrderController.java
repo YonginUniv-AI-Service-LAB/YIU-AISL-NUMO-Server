@@ -5,6 +5,7 @@ import com.aisl.shop.dto.request.order.OrderPayRequest;
 import com.aisl.shop.dto.response.order.OrderDetailResponse;
 import com.aisl.shop.dto.response.order.OrderListItemResponse;
 import com.aisl.shop.service.order.OrderService;
+import com.aisl.shop.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,9 +35,10 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        Long userId = 1L; // TODO: 로그인 연동 시 동적 처리
+        Long userId = SecurityUtil.getCurrentUserId(); // ✅ 변경됨
         return orderService.getFilteredOrderList(userId, status, startDate, endDate);
     }
+
 
 
     // 🔹 주문 상세 조회

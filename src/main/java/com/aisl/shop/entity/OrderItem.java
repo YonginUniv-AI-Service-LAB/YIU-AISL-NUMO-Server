@@ -24,6 +24,10 @@ public class OrderItem {
 
     private Long optionId; // nullable
 
+    private String productName;
+    private String optionName;
+
+
     @Column(nullable = false)
     private Integer quantity;
 

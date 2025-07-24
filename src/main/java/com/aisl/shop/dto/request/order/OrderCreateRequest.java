@@ -27,7 +27,7 @@ public class OrderCreateRequest {
     private String address;
 
     @NotBlank(message = "결제 수단은 필수입니다.")
-    private String paymentMethod; // "TOSS", "KAKAO" 등
+    private String paymentMethod;
 
     @NotEmpty(message = "주문 항목은 최소 1개 이상이어야 합니다.")
     private List<@Valid OrderItemDto> items;

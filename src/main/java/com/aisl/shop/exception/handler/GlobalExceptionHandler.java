@@ -12,6 +12,7 @@ import com.aisl.shop.exception.diary.DiaryNotFoundException;
 import com.aisl.shop.exception.habit.SpendingGoalNotFoundException;
 import com.aisl.shop.exception.order.*;
 import com.aisl.shop.exception.product.*;
+import com.aisl.shop.exception.product.ProductNotFoundException;
 import com.aisl.shop.exception.productoption.DuplicateProductOptionException;
 import com.aisl.shop.exception.productoption.InvalidStockQuantityException;
 import com.aisl.shop.exception.productoption.ProductOptionNotFoundException;

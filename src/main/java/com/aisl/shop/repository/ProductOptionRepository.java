@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface ProductOptionRepository extends JpaRepository<ProductOption, Long> {
 
-    //  연관 엔티티인 Product의 id로 옵션 목록 조회
     List<ProductOption> findByProduct_Id(Long productId);
+
+    // ✅ 옵션 존재 여부 확인용 메서드
+    boolean existsByProduct_Id(Long productId);
 }

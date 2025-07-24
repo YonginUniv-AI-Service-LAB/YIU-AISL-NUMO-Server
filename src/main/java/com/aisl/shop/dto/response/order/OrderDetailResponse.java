@@ -31,10 +31,13 @@ public class OrderDetailResponse {
     @AllArgsConstructor
     @Builder
     public static class OrderItemResponse {
+        private Long itemId;
         private String productName;   // 추후 ProductService에서 조회
         private String optionName;    // 추후 OptionService에서 조회
         private Integer quantity;
         private Integer unitPrice;
         private Integer totalPrice;
+
+
     }
 }

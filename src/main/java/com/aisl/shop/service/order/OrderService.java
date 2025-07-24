@@ -8,12 +8,17 @@ import com.aisl.shop.entity.Order;
 import com.aisl.shop.entity.Order.OrderStatus;
 import com.aisl.shop.entity.Order.PaymentMethod;
 import com.aisl.shop.entity.OrderItem;
+import com.aisl.shop.entity.Product;
 import com.aisl.shop.entity.ProductOption;
 import com.aisl.shop.enums.OrderItemStatus;
 import com.aisl.shop.exception.order.*;
-import com.aisl.shop.repository.OrderRepository;
+import com.aisl.shop.exception.product.ProductNotFoundException;
 import com.aisl.shop.repository.OrderItemRepository;
+import com.aisl.shop.repository.OrderRepository;
 import com.aisl.shop.repository.ProductOptionRepository;
+import com.aisl.shop.repository.ProductRepository;
+import com.aisl.shop.util.DiscountCalculator;
+import com.aisl.shop.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +37,10 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final ProductRepository productRepository;
 
-    // 🔹 주문 생성
     public Long createOrder(OrderCreateRequest request) {
+        // 1. 결제 방식 검증
         PaymentMethod paymentMethod;
         try {
             paymentMethod = PaymentMethod.valueOf(request.getPaymentMethod());
@@ -42,46 +48,77 @@ public class OrderService {
             throw new InvalidOrderStatusException("유효하지 않은 결제 방식입니다.");
         }
 
+        // 2. 주문 객체 초기 생성 (일단 totalPrice = 0)
         Order order = Order.builder()
-                .userId(null)
+                .userId(SecurityUtil.getCurrentUserId())
                 .email(request.getEmail())
                 .name(request.getName())
                 .phone(request.getPhone())
                 .address(request.getAddress())
                 .paymentMethod(paymentMethod)
-                .totalPrice(0) // 임시
+                .totalPrice(0)
                 .status(OrderStatus.PENDING)
                 .build();
 
         int totalPrice = 0;
         List<OrderItem> items = new ArrayList<>();
 
+        // 3. 각 주문 항목 처리
         for (var dto : request.getItems()) {
-            ProductOption option = productOptionRepository.findById(dto.getOptionId())
-                    .orElseThrow(() -> new RuntimeException("해당 옵션을 찾을 수 없습니다."));
+            Product product = productRepository.findById(dto.getProductId())
+                    .orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
 
-            int unitPrice = option.getPrice();
-            int itemTotal = unitPrice * dto.getQuantity();
-            totalPrice += itemTotal;
+            boolean hasOptions = productOptionRepository.existsByProduct_Id(product.getId());
+            Long optionId = dto.getOptionId(); // nullable
+            String optionName = null;
 
+            // 4. 할인 가격 계산
+            Integer discountPrice = DiscountCalculator.calculateDiscountPrice(
+                    product.getPrice(),
+                    product.getDiscountRate()
+            );
+            int unitPrice = (discountPrice != null) ? discountPrice : product.getPrice();
+
+            // 5. 옵션 처리
+            if (hasOptions && optionId != null) {
+                final Long finalOptionId = optionId;
+                ProductOption option = productOptionRepository.findById(finalOptionId)
+                        .orElseThrow(() ->
+                                new ProductOptionNotFoundException("해당 옵션을 찾을 수 없습니다. ID: " + finalOptionId));
+                optionName = option.getColor(); // 또는 getSize()
+            } else {
+                optionId = null; // 옵션 없음 처리
+            }
+
+            int quantity = dto.getQuantity();
+            int itemTotalPrice = unitPrice * quantity;
+            totalPrice += itemTotalPrice;
+
+            // 6. 주문 항목(OrderItem) 생성
             OrderItem item = OrderItem.builder()
                     .order(order)
-                    .productId(dto.getProductId())
-                    .optionId(dto.getOptionId())
-                    .quantity(dto.getQuantity())
+                    .productId(product.getId())
+                    .optionId(optionId)
+                    .productName(product.getName())
+                    .optionName(optionName)
+                    .quantity(quantity)
                     .unitPrice(unitPrice)
-                    .totalPrice(itemTotal)
+                    .totalPrice(itemTotalPrice)
                     .status(OrderItemStatus.PAID)
                     .build();
 
             items.add(item);
         }
 
+        // 7. 주문 정보 최종 반영 및 저장
         order.setItems(items);
         order.setTotalPrice(totalPrice);
-        orderRepository.save(order);
+        orderRepository.save(order); // Cascade로 OrderItem도 저장된다고 가정
+
         return order.getId();
     }
+
+
 
     public List<OrderListItemResponse> getOrderList(Long userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
@@ -94,6 +131,7 @@ public class OrderService {
     }
 
     public List<OrderListItemResponse> getFilteredOrderList(Long userId, String status, LocalDate startDate, LocalDate endDate) {
+        // 🔹 주문 상태 파싱
         OrderStatus enumStatus = null;
         if (status != null) {
             try {
@@ -103,17 +141,24 @@ public class OrderService {
             }
         }
 
+        // 🔹 날짜 보정 (endDate 포함되도록 하루 뒤 자정 직전까지 확장)
         LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = (endDate != null) ? endDate.plusDays(1).atStartOfDay().minusNanos(1) : null;
 
+        // 🔹 조건 적용된 주문 조회
         List<Order> orders = orderRepository.findByFilters(userId, enumStatus, startDateTime, endDateTime);
-        return orders.stream().map(order -> OrderListItemResponse.builder()
-                .orderId(order.getId())
-                .status(order.getStatus())
-                .totalPrice(order.getTotalPrice())
-                .createdAt(order.getCreatedAt())
-                .build()).collect(Collectors.toList());
+
+        // 🔹 응답 DTO 변환
+        return orders.stream()
+                .map(order -> OrderListItemResponse.builder()
+                        .orderId(order.getId())
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .createdAt(order.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
+
 
     public OrderDetailResponse getOrderDetail(Long orderId) {
         Order order = orderRepository.findById(orderId)
@@ -131,8 +176,8 @@ public class OrderService {
                 .createdAt(order.getCreatedAt())
                 .items(order.getItems().stream().map(item ->
                         OrderDetailResponse.OrderItemResponse.builder()
-                                .productName("상품명")
-                                .optionName("옵션명")
+                                .productName("상품명") // TODO: 상품명 연결
+                                .optionName("옵션명") // TODO: 옵션명 연결
                                 .quantity(item.getQuantity())
                                 .unitPrice(item.getUnitPrice())
                                 .totalPrice(item.getTotalPrice())
@@ -180,18 +225,44 @@ public class OrderService {
 
     public void cancelOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
+        System.out.println("현재 상태: " + item.getStatus()); // 🔍 로그 확인용
+
+        if (item.getStatus() == OrderItemStatus.COMPLETED) {
+            throw new InvalidOrderStatusException("구매 확정된 상품은 취소할 수 없습니다.");
+        }
+
         item.setStatus(OrderItemStatus.CANCELLED);
     }
 
+
     public void returnOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
+        System.out.println("현재 상태: " + item.getStatus());
+
+        if (item.getStatus() == OrderItemStatus.COMPLETED ||
+                item.getStatus() == OrderItemStatus.CANCELLED) {
+            throw new InvalidOrderStatusException("취소되었거나 구매 확정된 상품은 반품할 수 없습니다.");
+        }
+
         item.setStatus(OrderItemStatus.RETURN_REQUESTED);
     }
 
+
+
     public void exchangeOrderItem(Long itemId) {
         OrderItem item = getOrderItem(itemId);
+        System.out.println("현재 상태: " + item.getStatus());
+
+        if (item.getStatus() == OrderItemStatus.COMPLETED ||
+                item.getStatus() == OrderItemStatus.CANCELLED) {
+            throw new InvalidOrderStatusException("취소되었거나 구매 확정된 상품은 교환할 수 없습니다.");
+        }
+
+
         item.setStatus(OrderItemStatus.EXCHANGE_REQUESTED);
     }
+
+
 
     private OrderItem getOrderItem(Long itemId) {
         return orderItemRepository.findById(itemId)

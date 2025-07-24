@@ -31,21 +31,25 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(
-                                "/", "/test", "/category/**",
-                                "/search/**",
-                                "/products/**",        // 상품 및 옵션 전체 경로 접근 허용 추가
-                                "/auth/token", "/auth/signup", "/auth/check-email", "/auth/reissue", "/auth/**",
-                                "/auth/oauth/google",
-                                "/auth/admin/signup",
-                                "/emails/verification-code", "/emails/verification-code/verify",
-                                "/users/password",
-                                "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                        "/images/**","/upload/**","/favicon.ico","/orders/**", "/wishlist/**", "/reviews/**",
-                                "/habits/**", "/diaries/**", "/cart/**", "/admin/banners/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                                        "/admin/banners/**",     // ✅ 먼저 명시: 배너만 모두 접근 허용
+                                        "/", "/test", "/category/**",
+                                        "/search/**",
+                                        "/products/**",
+                                        "/auth/token", "/auth/signup", "/auth/check-email", "/auth/reissue", "/auth/**",
+                                        "/auth/oauth/google",
+                                        "/auth/admin/signup",
+                                        "/emails/verification-code", "/emails/verification-code/verify",
+                                        "/users/password",
+                                        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
+                                        "/images/**", "/upload/**", "/favicon.ico",
+                                        "/orders/**", "/wishlist/**", "/reviews/**",
+                                        "/habits/**", "/diaries/**", "/cart/**"
+                                ).permitAll()
+
+                                .requestMatchers("/admin/**").hasRole("ADMIN") // ❗ 그 외의 /admin 경로는 ADMIN만 허용
+                                .anyRequest().authenticated()
+
                 )
 
 

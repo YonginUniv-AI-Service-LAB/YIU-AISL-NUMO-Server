@@ -33,7 +33,7 @@ public class CartitemService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
-        int unitPrice = product.getPrice();
+        int unitPrice = request.getPrice();
         int totalPrice = unitPrice * request.getQuantity();
 
         return cartItemRepository.findByUserIdAndProductIdAndColorAndSize(
@@ -139,3 +139,9 @@ public class CartitemService {
                 .build();
     }
 }
+
+
+
+
+
+

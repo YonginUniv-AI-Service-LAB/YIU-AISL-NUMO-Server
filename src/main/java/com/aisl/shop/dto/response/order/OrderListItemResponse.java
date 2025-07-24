@@ -1,11 +1,8 @@
 package com.aisl.shop.dto.response.order;
-
 import com.aisl.shop.entity.Order.OrderStatus;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,12 +13,26 @@ public class OrderListItemResponse {
     private OrderStatus status;
     private Integer totalPrice;
     private LocalDateTime createdAt;
-    // :흰색_확인_표시: 추가!
+    // :별:️ 주문상품 요약 리스트 추가!
     private List<ItemSummary> items;
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+    // :별:️ 주문상품 요약 정보 (상품명, 옵션명, 수량)
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class ItemSummary {
         private String productName;
         private String optionName;
         private Integer quantity;
     }
 }
+
+
+
+
+
+
+
+
+

@@ -115,6 +115,7 @@ public class OrderService {
                         .status(order.getStatus())
                         .totalPrice(order.getTotalPrice())
                         .createdAt(order.getCreatedAt())
+
                         .build())
                 .collect(Collectors.toList());
     }

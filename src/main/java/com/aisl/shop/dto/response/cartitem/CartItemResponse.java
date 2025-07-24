@@ -10,15 +10,16 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class CartItemResponse {
-    private Long id;              // 장바구니 항목 ID
-    private Long userId;          // 사용자 ID
-    private Long productId;       // 상품 ID
-    private String productName;   // 상품 이름
-    private String brandName;     // 브랜드 이름
-    private String thumbnailUrl;  // 썸네일 이미지 URL
-    private Integer price;        // 상품 단가 (옵션 기준 단가)
-    private Integer quantity;     // 수량
-    private String color;         // 선택한 색상
-    private String size;          // 선택한 사이즈
+    private Long id;
+    private Long userId;
+    private Long productId;
+    private String productName;
+    private String brandName;
+    private String thumbnailUrl;
+    private Integer price;         // 단가 (옵션 기준 가격)
+    private Integer quantity;
+    private Integer totalPrice;    // 단가 * 수량
+    private String color;
+    private String size;
     private LocalDateTime createdAt;
 }
